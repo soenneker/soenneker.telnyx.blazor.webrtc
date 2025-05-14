@@ -1,0 +1,125 @@
+﻿name: publish-package
+on:
+  push:
+    branches:
+      - main
+
+    # Publish `v1.2.3` tags as releases.
+
+    paths-ignore:
+      - 'test/**'
+
+env:
+    "PipelineEnvironment": true
+
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setting up build version
+        run: |
+          version=$(($GITHUB_RUN_NUMBER))
+          echo "BUILD_VERSION=3.0.$version" >> ${GITHUB_ENV}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test test/Soenneker.Telnyx.Blazor.WebRtc.Tests/Soenneker.Telnyx.Blazor.WebRtc.Tests.csproj --no-restore --verbosity normal
+
+      - name: Pack
+        run: dotnet pack --no-build --configuration Release --output .
+
+      - name: Publish to nuGet
+        run: dotnet nuget push **\*.nupkg --source 'https://api.nuget.org/v3/index.json' --api-key ${{secrets.NUGET_TOKEN}} --skip-duplicate
+
+      - name: Add GitHub NuGet Source
+        run: |
+          dotnet nuget add source https://nuget.pkg.github.com/soenneker/index.json \
+          --name "github" \
+          --username "any" \
+          --password ${{ secrets.GH_TOKEN }} \
+          --store-password-in-clear-text
+
+      - name: Publish to GitHub Packages
+        run: |
+          dotnet nuget push ./*.nupkg \
+          --source "github" \
+          --api-key ${{ secrets.GH_TOKEN }}
+
+      - name: Create GitHub Release
+        run: |
+          changelog=$(git log -20 --pretty=format:"- %s")
+          tag_name="v$BUILD_VERSION"
+
+          json_payload=$(
+            jq -n \
+              --arg tag_name "$tag_name" \
+              --arg name "$tag_name" \
+              --arg body "$changelog" \
+              '{
+                tag_name: $tag_name,
+                name: $name,
+                body: $body,
+                draft: false,
+                prerelease: false
+              }'
+          )
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/releases \
+            -d "$json_payload"
+
+  deploy-demo:
+    needs: publish-package
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install wasm-tools
+        run: |
+          dotnet workload install wasm-tools
+
+      - name: Publish Blazor WebAssembly Demo
+        run: dotnet publish test/Soenneker.Telnyx.Blazor.WebRtc.Demo/Soenneker.Telnyx.Blazor.WebRtc.Demo.csproj -c Release
+
+      - name: Set Base Href for GitHub Pages
+        run: |
+          cd test/Soenneker.Telnyx.Blazor.WebRtc.Demo/bin/Release/net9.0/publish/wwwroot
+          sed -i 's|%BASE_URL%|/soenneker.telnyx.blazor.webrtc/|g' index.html || exit 1
+
+      - name: Add .nojekyll
+        run: touch test/Soenneker.Telnyx.Blazor.WebRtc.Demo/bin/Release/net9.0/publish/wwwroot/.nojekyll
+
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: test/Soenneker.Telnyx.Blazor.WebRtc.Demo/bin/Release/net9.0/publish/wwwroot
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

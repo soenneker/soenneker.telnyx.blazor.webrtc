@@ -1,0 +1,726 @@
+﻿@using System.Text.Json
+@using System.Threading
+@using Microsoft.JSInterop
+@using Soenneker.Extensions.Task
+@using Soenneker.Extensions.ValueTask
+@using Soenneker.Blazor.Extensions.EventCallback
+@using Soenneker.Telnyx.Blazor.WebRtc.Abstract
+@using Soenneker.Telnyx.Blazor.WebRtc.Configuration
+@using Soenneker.Telnyx.Blazor.WebRtc.Dtos
+@using Soenneker.Telnyx.Blazor.WebRtc.Enums
+
+@inject ITelnyxWebRtcInterop TelnyxWebRtcInterop
+
+@implements ITelnyxWebRtc
+
+<div id="@ElementId" @attributes="Attributes" >@ChildContent</div>
+
+@code {
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object?>? Attributes { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnInitialize { get; set; }
+
+    [Parameter]
+    public EventCallback OnReady { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnMessage { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnError { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnCallInitiated { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnCallAnswered { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnCallHangup { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnCallHeld { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnCallResumed { get; set; }
+
+    [Parameter]
+    public EventCallback OnLocalStream { get; set; }
+
+    [Parameter]
+    public EventCallback OnRemoteStream { get; set; }
+
+    [Parameter]
+    public EventCallback OnStreamStopped { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnDevicesChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnConferenceUpdate { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnStatsUpdate { get; set; }
+
+    public string ElementId { get; set; } = $"telnyx-webrtc-{Guid.NewGuid()}";
+
+    private readonly CancellationTokenSource _cTs = new();
+
+    private DotNetObjectReference<TelnyxWebRtc>? _dotNetReference;
+
+    [Parameter]
+    public TelnyxClientOptions? Options { get; set; }
+
+    private bool _initialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TelnyxWebRtcInterop.Initialize(_cTs.Token).NoSync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Initialize(null, _cTs.Token).NoSync();
+        }
+    }
+
+    public async ValueTask Initialize(TelnyxClientOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        await OnInitialize.InvokeIfHasDelegate();
+
+        _initialized = true;
+
+        if (options != null)
+            Options = options;
+
+        if (Options == null)
+            throw new InvalidOperationException("TelnyxWebRtcOptions must be set");
+
+        _dotNetReference = DotNetObjectReference.Create(this);
+
+        using CancellationTokenSource? linkedCts = cancellationToken != _cTs.Token ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token) : null;
+
+        CancellationToken token = linkedCts?.Token ?? _cTs.Token;
+
+        await TelnyxWebRtcInterop.Create(ElementId, _dotNetReference, Options, token).NoSync();
+        await TelnyxWebRtcInterop.CreateObserver(ElementId, token).NoSync();
+    }
+
+    public async ValueTask Call(TelnyxCallOptions callOptions, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Call(ElementId, callOptions, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Answer(TelnyxAnswerOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Answer(ElementId, options, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Hangup(TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Hangup(ElementId, options, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask MuteAudio(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.MuteAudio(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask UnmuteAudio(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.UnmuteAudio(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask ToggleAudioMute(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.ToggleAudioMute(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask MuteVideo(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.MuteVideo(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask UnmuteVideo(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.UnmuteVideo(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask ToggleVideoMute(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.ToggleVideoMute(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Deaf(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Deaf(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Undeaf(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Undeaf(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask ToggleDeaf(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.ToggleDeaf(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Hold(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Hold(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Unhold(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Unhold(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask ToggleHold(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.ToggleHold(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Dtmf(string digit, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Dtmf(ElementId, digit, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Message(string to, string body, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Message(ElementId, to, body, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask SetAudioInDevice(string deviceId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.SetAudioInDevice(ElementId, deviceId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask SetVideoDevice(string deviceId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.SetVideoDevice(ElementId, deviceId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask SetAudioOutDevice(string deviceId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.SetAudioOutDevice(ElementId, deviceId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask StartScreenShare(TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.StartScreenShare(ElementId, options, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask StopScreenShare(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.StopScreenShare(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask SetAudioBandwidth(int bps, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.SetAudioBandwidth(ElementId, bps, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask SetVideoBandwidth(int bps, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.SetVideoBandwidth(ElementId, bps, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask<List<MediaDeviceInfo>> GetDevices(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        string json = await TelnyxWebRtcInterop.GetDevices(ElementId, linkedCts.Token).NoSync();
+        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+    }
+
+    public async ValueTask<List<MediaDeviceInfo>> GetVideoDevices(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        string json = await TelnyxWebRtcInterop.GetVideoDevices(ElementId, linkedCts.Token).NoSync();
+        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+    }
+
+    public async ValueTask<List<MediaDeviceInfo>> GetAudioInDevices(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        string json = await TelnyxWebRtcInterop.GetAudioInDevices(ElementId, linkedCts.Token).NoSync();
+        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+    }
+
+    public async ValueTask<List<MediaDeviceInfo>> GetAudioOutDevices(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        string json = await TelnyxWebRtcInterop.GetAudioOutDevices(ElementId, linkedCts.Token).NoSync();
+        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+    }
+
+    public async ValueTask<bool> CheckPermissions(bool audio = true, bool video = true, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        return await TelnyxWebRtcInterop.CheckPermissions(ElementId, audio, video, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask<bool> SetAudioSettings(TelnyxAudioSettings settings, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        return await TelnyxWebRtcInterop.SetAudioSettings(ElementId, settings, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask<bool> SetVideoSettings(TelnyxVideoSettings settings, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        return await TelnyxWebRtcInterop.SetVideoSettings(ElementId, settings, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask EnableMicrophone(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.EnableMicrophone(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask DisableMicrophone(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.DisableMicrophone(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask EnableWebcam(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.EnableWebcam(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask DisableWebcam(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.DisableWebcam(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask ToggleAudio(bool enabled, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.ToggleAudio(ElementId, enabled, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask ToggleVideo(bool enabled, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.ToggleVideo(ElementId, enabled, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Disconnect(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Disconnect(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Reconnect(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Reconnect(ElementId, linkedCts.Token).NoSync();
+    }
+
+    // Conference control methods
+    public async ValueTask ListVideoLayouts(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.ListVideoLayouts(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask SetVideoLayout(string layout, string? canvas = null, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.SetVideoLayout(ElementId, layout, canvas, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask PlayMedia(string source, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.PlayMedia(ElementId, source, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask StopMedia(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.StopMedia(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask StartRecord(string filename, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.StartRecord(ElementId, filename, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask StopRecord(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.StopRecord(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask SendChatMessage(string message, string? type = null, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.SendChatMessage(ElementId, message, type, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Snapshot(string filename, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Snapshot(ElementId, filename, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask MuteMic(string participantId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.MuteMic(ElementId, participantId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask MuteVideoParticipant(string participantId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.MuteVideoParticipant(ElementId, participantId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Kick(string participantId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Kick(ElementId, participantId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask VolumeUp(string participantId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.VolumeUp(ElementId, participantId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask VolumeDown(string participantId, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.VolumeDown(ElementId, participantId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask<string?> GetCallStats(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        return await TelnyxWebRtcInterop.GetCallStats(ElementId, linkedCts.Token).NoSync();
+    }
+
+    [JSInvokable("HandleTelnyxEvent")]
+    public async Task HandleTelnyxEvent(string eventName, string jsonArgs)
+    {
+        switch (eventName)
+        {
+            case "ready":
+                await OnReady.InvokeIfHasDelegate();
+                break;
+
+            case "error":
+                if (OnError.HasDelegate)
+                    await OnError.InvokeAsync(jsonArgs);
+                break;
+
+            case "notification":
+                try
+                {
+                    using JsonDocument doc = JsonDocument.Parse(jsonArgs);
+                    JsonElement root = doc.RootElement;
+
+                    if (root.TryGetProperty("type", out JsonElement typeElem))
+                    {
+                        string? type = typeElem.GetString();
+
+                        if (type == "callUpdate")
+                        {
+                            if (root.TryGetProperty("call", out JsonElement callElem) &&
+                                callElem.TryGetProperty("state", out JsonElement stateElem))
+                            {
+                                string? stateStr = stateElem.GetString();
+
+                                if (TelnyxCallState.TryFromName(stateStr, out TelnyxCallState? callState))
+                                {
+                                    if (callState == TelnyxCallState.New ||
+                                        callState == TelnyxCallState.Trying ||
+                                        callState == TelnyxCallState.Requesting ||
+                                        callState == TelnyxCallState.Recovering)
+                                    {
+                                        if (OnCallInitiated.HasDelegate)
+                                            await OnCallInitiated.InvokeAsync(jsonArgs).NoSync();
+                                    }
+                                    else if (callState == TelnyxCallState.Ringing ||
+                                             callState == TelnyxCallState.Answering ||
+                                             callState == TelnyxCallState.Early ||
+                                             callState == TelnyxCallState.Active)
+                                    {
+                                        if (OnCallAnswered.HasDelegate)
+                                            await OnCallAnswered.InvokeAsync(jsonArgs).NoSync();
+                                    }
+                                    else if (callState == TelnyxCallState.Held)
+                                    {
+                                        if (OnCallHeld.HasDelegate)
+                                            await OnCallHeld.InvokeAsync(jsonArgs).NoSync();
+                                    }
+                                    else if (callState == TelnyxCallState.Hangup ||
+                                             callState == TelnyxCallState.Destroy ||
+                                             callState == TelnyxCallState.Purge)
+                                    {
+                                        if (OnCallHangup.HasDelegate)
+                                            await OnCallHangup.InvokeAsync(jsonArgs).NoSync();
+                                    }
+                                }
+                            }
+                        }
+                        else if (type == "conferenceUpdate")
+                        {
+                            if (OnConferenceUpdate.HasDelegate)
+                                await OnConferenceUpdate.InvokeAsync(jsonArgs).NoSync();
+                        }
+                        else
+                        {
+                            if (OnMessage.HasDelegate)
+                                await OnMessage.InvokeAsync(jsonArgs).NoSync();
+                        }
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    if (OnError.HasDelegate)
+                        await OnError.InvokeAsync($"Failed to parse notification: {ex.Message}").NoSync();
+                }
+
+                break;
+
+            case "socket.close":
+                // Handle socket close event if needed
+                break;
+
+            case "localStream":
+                await OnLocalStream.InvokeIfHasDelegate().NoSync();
+                break;
+
+            case "remoteStream":
+                await OnRemoteStream.InvokeIfHasDelegate().NoSync();
+                break;
+
+            case "streamStopped":
+                await OnStreamStopped.InvokeIfHasDelegate().NoSync();
+                break;
+
+            case "stats.report":
+            case "stats.frame":
+                if (OnStatsUpdate.HasDelegate)
+                    await OnStatsUpdate.InvokeAsync(jsonArgs).NoSync();
+                break;
+
+            case "deviceChange":
+                if (OnDevicesChanged.HasDelegate)
+                    await OnDevicesChanged.InvokeAsync(jsonArgs).NoSync();
+                break;
+        }
+    }
+
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_initialized)
+        {
+            await TelnyxWebRtcInterop.Unmount(ElementId).NoSync();
+        }
+
+        _dotNetReference?.Dispose();
+
+        await _cTs.CancelAsync().NoSync();
+        _cTs.Dispose();
+    }
+
+}
