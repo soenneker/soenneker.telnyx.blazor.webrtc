@@ -77,7 +77,15 @@
         };
 
         [
-            "ready", "error", "notification", "socket.close"
+            "ready",
+            "error",
+            "notification",
+            "socket.open",
+            "socket.close",
+            "socket.error",
+            "reconnecting",
+            "reconnected",
+            "disconnected"
         ].forEach(forward);
 
         client.on('telnyx.notification', (notification) => {

@@ -69,6 +69,27 @@
     [Parameter]
     public EventCallback<string> OnStatsUpdate { get; set; }
 
+    [Parameter]
+    public EventCallback<TelnyxNotification> OnNotification { get; set; }
+
+    [Parameter]
+    public EventCallback OnSocketOpen { get; set; }
+
+    [Parameter]
+    public EventCallback OnSocketClose { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSocketError { get; set; }
+
+    [Parameter]
+    public EventCallback OnReconnecting { get; set; }
+
+    [Parameter]
+    public EventCallback OnReconnected { get; set; }
+
+    [Parameter]
+    public EventCallback OnDisconnected { get; set; }
+
     public string ElementId { get; set; } = $"telnyx-webrtc-{Guid.NewGuid()}";
 
     private readonly CancellationTokenSource _cTs = new();
@@ -617,6 +638,9 @@
                 {
                     var notification = JsonUtil.Deserialize<TelnyxNotification>(jsonArgs);
 
+                    if (OnNotification.HasDelegate && notification != null)
+                        await OnNotification.InvokeAsync(notification).NoSync();
+
                     switch (notification.Type)
                     {
                         case "callUpdate":
@@ -680,8 +704,29 @@
 
                 break;
 
+            case "socket.open":
+                await OnSocketOpen.InvokeIfHasDelegate().NoSync();
+                break;
+
             case "socket.close":
-                // Handle socket close event if needed
+                await OnSocketClose.InvokeIfHasDelegate().NoSync();
+                break;
+
+            case "socket.error":
+                if (OnSocketError.HasDelegate)
+                    await OnSocketError.InvokeAsync(jsonArgs).NoSync();
+                break;
+
+            case "reconnecting":
+                await OnReconnecting.InvokeIfHasDelegate().NoSync();
+                break;
+
+            case "reconnected":
+                await OnReconnected.InvokeIfHasDelegate().NoSync();
+                break;
+
+            case "disconnected":
+                await OnDisconnected.InvokeIfHasDelegate().NoSync();
                 break;
 
             case "localStream":

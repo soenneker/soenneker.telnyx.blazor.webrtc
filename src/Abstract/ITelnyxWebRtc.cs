@@ -95,6 +95,38 @@ public interface ITelnyxWebRtc : IAsyncDisposable
     /// </summary>
     EventCallback<string> OnStatsUpdate { get; set; }
 
+    EventCallback<TelnyxNotification> OnNotification { get; set; }
+
+    /// <summary>
+    /// Raised when the underlying WebSocket connection opens.
+    /// </summary>
+    EventCallback OnSocketOpen { get; set; }
+
+    /// <summary>
+    /// Raised when the WebSocket connection is closed.
+    /// </summary>
+    EventCallback OnSocketClose { get; set; }
+
+    /// <summary>
+    /// Raised when a WebSocket error occurs.
+    /// </summary>
+    EventCallback<string> OnSocketError { get; set; }
+
+    /// <summary>
+    /// Raised when the client is attempting to reconnect.
+    /// </summary>
+    EventCallback OnReconnecting { get; set; }
+
+    /// <summary>
+    /// Raised when the client successfully reconnects.
+    /// </summary>
+    EventCallback OnReconnected { get; set; }
+
+    /// <summary>
+    /// Raised when the client becomes disconnected.
+    /// </summary>
+    EventCallback OnDisconnected { get; set; }
+
     /// <summary>
     /// Initializes the Telnyx WebRTC client and sets up event bindings.
     /// </summary>

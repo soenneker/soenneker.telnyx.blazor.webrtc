@@ -33,6 +33,8 @@
         const string phoneNumber = "";
 
         await _telnyxWebRtc.Call(new TelnyxCallOptions { CallerNumber = "", DestinationNumber = phoneNumber });
+
+       // await _telnyxWebRtc.Hangup();
     }
 
 }
