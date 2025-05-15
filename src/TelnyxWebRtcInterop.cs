@@ -7,7 +7,6 @@ using Soenneker.Utils.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Telnyx.Blazor.WebRtc.Configuration;
-using System;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc;
 

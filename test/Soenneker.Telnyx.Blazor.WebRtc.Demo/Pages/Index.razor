@@ -11,20 +11,28 @@
 
 <hr />
 
-<TelnyxWebRtc Options="_options" ></TelnyxWebRtc>
+<TelnyxWebRtc Options="_options" @ref="_telnyxWebRtc"></TelnyxWebRtc>
+
+<Button Clicked="Call" Color="Color.Primary">Call</Button>
 
 @code{
+
+    TelnyxWebRtc _telnyxWebRtc = null!;
 
     private readonly TelnyxClientOptions _options = new()
     {
         InitOptions = new TelnyxClientInitOptions
         {
-            LoginToken = ""
+            Login = "",
+            Password = ""
         }
     };
 
-    protected override void OnInitialized()
+    protected async Task Call()
     {
+        const string phoneNumber = "";
+
+        await _telnyxWebRtc.Call(new TelnyxCallOptions { CallerNumber = "", DestinationNumber = phoneNumber });
     }
 
 }

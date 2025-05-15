@@ -8,6 +8,7 @@
 @using Soenneker.Telnyx.Blazor.WebRtc.Configuration
 @using Soenneker.Telnyx.Blazor.WebRtc.Dtos
 @using Soenneker.Telnyx.Blazor.WebRtc.Enums
+@using Soenneker.Utils.Json
 
 @inject ITelnyxWebRtcInterop TelnyxWebRtcInterop
 
@@ -94,8 +95,6 @@
 
     public async ValueTask Initialize(TelnyxClientOptions? options = null, CancellationToken cancellationToken = default)
     {
-        await OnInitialize.InvokeIfHasDelegate();
-
         _initialized = true;
 
         if (options != null)
@@ -337,7 +336,7 @@
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         string json = await TelnyxWebRtcInterop.GetDevices(ElementId, linkedCts.Token).NoSync();
-        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+        return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
     }
 
     public async ValueTask<List<MediaDeviceInfo>> GetVideoDevices(CancellationToken cancellationToken = default)
@@ -347,7 +346,7 @@
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         string json = await TelnyxWebRtcInterop.GetVideoDevices(ElementId, linkedCts.Token).NoSync();
-        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+        return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
     }
 
     public async ValueTask<List<MediaDeviceInfo>> GetAudioInDevices(CancellationToken cancellationToken = default)
@@ -357,7 +356,7 @@
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         string json = await TelnyxWebRtcInterop.GetAudioInDevices(ElementId, linkedCts.Token).NoSync();
-        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+        return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
     }
 
     public async ValueTask<List<MediaDeviceInfo>> GetAudioOutDevices(CancellationToken cancellationToken = default)
@@ -367,7 +366,7 @@
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         string json = await TelnyxWebRtcInterop.GetAudioOutDevices(ElementId, linkedCts.Token).NoSync();
-        return System.Text.Json.JsonSerializer.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+        return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
     }
 
     public async ValueTask<bool> CheckPermissions(bool audio = true, bool video = true, CancellationToken cancellationToken = default)
@@ -601,77 +600,78 @@
     {
         switch (eventName)
         {
+            case "initialized":
+                await OnInitialize.InvokeIfHasDelegate().NoSync();
+                break;
             case "ready":
-                await OnReady.InvokeIfHasDelegate();
+                await OnReady.InvokeIfHasDelegate().NoSync();
                 break;
 
             case "error":
                 if (OnError.HasDelegate)
-                    await OnError.InvokeAsync(jsonArgs);
+                    await OnError.InvokeAsync(jsonArgs).NoSync();
                 break;
 
             case "notification":
                 try
                 {
-                    using JsonDocument doc = JsonDocument.Parse(jsonArgs);
-                    JsonElement root = doc.RootElement;
+                    var notification = JsonUtil.Deserialize<TelnyxNotification>(jsonArgs);
 
-                    if (root.TryGetProperty("type", out JsonElement typeElem))
+                    switch (notification.Type)
                     {
-                        string? type = typeElem.GetString();
-
-                        if (type == "callUpdate")
+                        case "callUpdate":
                         {
-                            if (root.TryGetProperty("call", out JsonElement callElem) &&
-                                callElem.TryGetProperty("state", out JsonElement stateElem))
-                            {
-                                string? stateStr = stateElem.GetString();
+                            TelnyxCallState? stateStr = notification.Call.State;
 
-                                if (TelnyxCallState.TryFromName(stateStr, out TelnyxCallState? callState))
-                                {
-                                    if (callState == TelnyxCallState.New ||
-                                        callState == TelnyxCallState.Trying ||
-                                        callState == TelnyxCallState.Requesting ||
-                                        callState == TelnyxCallState.Recovering)
-                                    {
-                                        if (OnCallInitiated.HasDelegate)
-                                            await OnCallInitiated.InvokeAsync(jsonArgs).NoSync();
-                                    }
-                                    else if (callState == TelnyxCallState.Ringing ||
-                                             callState == TelnyxCallState.Answering ||
-                                             callState == TelnyxCallState.Early ||
-                                             callState == TelnyxCallState.Active)
-                                    {
-                                        if (OnCallAnswered.HasDelegate)
-                                            await OnCallAnswered.InvokeAsync(jsonArgs).NoSync();
-                                    }
-                                    else if (callState == TelnyxCallState.Held)
-                                    {
-                                        if (OnCallHeld.HasDelegate)
-                                            await OnCallHeld.InvokeAsync(jsonArgs).NoSync();
-                                    }
-                                    else if (callState == TelnyxCallState.Hangup ||
-                                             callState == TelnyxCallState.Destroy ||
-                                             callState == TelnyxCallState.Purge)
-                                    {
-                                        if (OnCallHangup.HasDelegate)
-                                            await OnCallHangup.InvokeAsync(jsonArgs).NoSync();
-                                    }
-                                }
+                            switch (stateStr.Name)
+                            {
+                                case nameof(TelnyxCallState.New):
+                                case nameof(TelnyxCallState.Trying):
+                                case nameof(TelnyxCallState.Requesting):
+                                case nameof(TelnyxCallState.Recovering):
+                                    if (OnCallInitiated.HasDelegate)
+                                        await OnCallInitiated.InvokeAsync(jsonArgs).NoSync();
+                                    break;
+
+                                case nameof(TelnyxCallState.Ringing):
+                                case nameof(TelnyxCallState.Answering):
+                                case nameof(TelnyxCallState.Early):
+                                case nameof(TelnyxCallState.Active):
+
+                                    if (OnCallAnswered.HasDelegate)
+                                        await OnCallAnswered.InvokeAsync(jsonArgs).NoSync();
+                                    break;
+
+                                case nameof(TelnyxCallState.Held):
+                                    if (OnCallHeld.HasDelegate)
+                                        await OnCallHeld.InvokeAsync(jsonArgs).NoSync();
+                                    break;
+
+                                case nameof(TelnyxCallState.Hangup):
+                                case nameof(TelnyxCallState.Destroy):
+                                case nameof(TelnyxCallState.Purge):
+                                    if (OnCallHangup.HasDelegate)
+                                        await OnCallHangup.InvokeAsync(jsonArgs).NoSync();
+                                    break;
                             }
+
+                            break;
                         }
-                        else if (type == "conferenceUpdate")
+                        case "conferenceUpdate":
                         {
                             if (OnConferenceUpdate.HasDelegate)
                                 await OnConferenceUpdate.InvokeAsync(jsonArgs).NoSync();
+                            break;
                         }
-                        else
+                        default:
                         {
                             if (OnMessage.HasDelegate)
                                 await OnMessage.InvokeAsync(jsonArgs).NoSync();
+                            break;
                         }
                     }
                 }
+
                 catch (JsonException ex)
                 {
                     if (OnError.HasDelegate)
@@ -712,11 +712,6 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (_initialized)
-        {
-            await TelnyxWebRtcInterop.Unmount(ElementId).NoSync();
-        }
-
         _dotNetReference?.Dispose();
 
         await _cTs.CancelAsync().NoSync();

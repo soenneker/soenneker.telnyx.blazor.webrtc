@@ -11,7 +11,7 @@ public sealed class TelnyxNotification
     /// Identifies the event type. Possible values include 'callUpdate' and 'userMediaError'.
     /// </summary>
     [JsonPropertyName("type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = null!;
 
     /// <summary>
     /// The current call information. Present when the notification type is 'callUpdate'.

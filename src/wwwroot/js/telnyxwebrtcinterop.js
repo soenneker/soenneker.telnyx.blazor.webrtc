@@ -22,7 +22,8 @@
 
         this._clients.set(elementId, wrapper);
         this._createClient(wrapper);
-        this._createObserver(elementId);
+
+        dotNetCallback.invokeMethodAsync("HandleTelnyxEvent", "initialized", "");
     }
 
     _createClient(wrapper) {
@@ -49,15 +50,29 @@
     }
 
     _bindEvents(wrapper) {
+
         const { client, dotNetCallback } = wrapper;
 
+        const safeStringify = (obj, indent = 2) => {
+            const seen = new WeakSet();
+            return JSON.stringify(obj, (key, value) => {
+                if (typeof value === "object" && value !== null) {
+                    if (seen.has(value)) {
+                        return "[Circular]";
+                    }
+                    seen.add(value);
+                }
+                return value;
+            }, indent);
+        };
+
         const safeInvoke = (event, args) => {
-            dotNetCallback.invokeMethodAsync("HandleTelnyxEvent", event, JSON.stringify(args));
+            dotNetCallback.invokeMethodAsync("HandleTelnyxEvent", event, safeStringify(args));
         };
 
         const forward = (eventName) => {
-            client.on(`telnyx.${eventName}`, (...args) => {
-                safeInvoke(eventName, args);
+            client.on(`telnyx.${eventName}`, (arg) => {
+                safeInvoke(eventName, arg);
             });
         };
 
@@ -66,7 +81,7 @@
         ].forEach(forward);
 
         client.on('telnyx.notification', (notification) => {
-            safeInvoke('notification', [notification]);
+            safeInvoke('notification', notification);
             if (notification.type === 'callUpdate' && notification.call?.state === 'ready') {
                 wrapper.reconnectCount = 0;
             } else if (notification.type === 'callUpdate' && notification.call?.state === 'disconnected') {
@@ -371,7 +386,7 @@
         this._disconnectObserver(elementId);
     }
 
-    _createObserver(elementId) {
+    createObserver(elementId) {
         const el = document.getElementById(elementId);
         if (!el || !el.parentNode) {
             console.warn(`Element "${elementId}" not found for mutation observer.`);
