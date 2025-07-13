@@ -16,7 +16,7 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// Initializes and loads the Telnyx WebRTC JavaScript module.
     /// This must be called once before any other operations.
     /// </summary>
-    ValueTask Initialize(CancellationToken cancellationToken = default);
+    ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates and registers a Telnyx WebRTC client instance with configuration and event callback support.

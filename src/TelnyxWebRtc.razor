@@ -103,7 +103,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await TelnyxWebRtcInterop.Initialize(_cTs.Token).NoSync();
+        await TelnyxWebRtcInterop.Initialize(Options?.UseCdn ?? true, _cTs.Token).NoSync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

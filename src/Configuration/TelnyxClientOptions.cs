@@ -27,4 +27,7 @@ public sealed class TelnyxClientOptions
     /// </summary>
     [JsonPropertyName("reconnectAttempts")]
     public int ReconnectAttempts { get; set; } = 5;
+
+    [JsonIgnore]
+    public bool UseCdn { get; set; } = true;
 }
