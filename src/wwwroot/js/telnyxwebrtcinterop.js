@@ -2,6 +2,16 @@
     constructor() {
         this._clients = new Map();
         this._observers = new Map();
+
+        // Encapsulated unload handler: ensures cleanup on page unload, only added once
+        if (typeof window !== 'undefined' && !window._telnyxUnloadHandlerAdded) {
+            window.addEventListener('unload', () => {
+                for (const elementId of this._clients.keys()) {
+                    this.unmount(elementId);
+                }
+            });
+            window._telnyxUnloadHandlerAdded = true;
+        }
     }
 
     create(elementId, optionsJson, dotNetCallback) {
@@ -105,13 +115,32 @@
         const wrapper = this._clients.get(elementId);
         if (!wrapper?.client) return;
 
+        // Prevent new call if one is already active
+        if (wrapper.client.currentCall) {
+            console.warn('TelnyxWebRtcInterop: Tried to start a new call while one is already active. Hang up first.');
+            return;
+        }
+
         const callOptions = JSON.parse(optionsJson);
-        wrapper.client.newCall(callOptions);
+        let call = null;
+        try {
+            call = wrapper.client.newCall(callOptions);
+        } catch (err) {
+            console.error('TelnyxWebRtcInterop: Exception during newCall:', err);
+        }
+        if (call) {
+            wrapper.client.currentCall = call;
+        } else {
+            console.warn('TelnyxWebRtcInterop: Failed to create a new call.');
+        }
     }
 
     answer(elementId, optionsJson) {
         const wrapper = this._clients.get(elementId);
-        if (!wrapper?.client?.currentCall) return;
+        if (!wrapper?.client?.currentCall) {
+            console.warn('TelnyxWebRtcInterop: Tried to answer but no currentCall is set.');
+            return;
+        }
 
         if (optionsJson) {
             const options = JSON.parse(optionsJson);
@@ -123,7 +152,10 @@
 
     hangup(elementId, optionsJson) {
         const wrapper = this._clients.get(elementId);
-        if (!wrapper?.client?.currentCall) return;
+        if (!wrapper?.client?.currentCall) {
+            console.warn('TelnyxWebRtcInterop: Tried to hangup but no currentCall is set.');
+            return;
+        }
 
         if (optionsJson) {
             const options = JSON.parse(optionsJson);
@@ -131,6 +163,8 @@
         } else {
             wrapper.client.currentCall.hangup();
         }
+        // Clean up currentCall after hangup
+        wrapper.client.currentCall = null;
     }
 
     muteAudio(elementId) {
@@ -368,6 +402,11 @@
         wrapper.client.off('telnyx.error');
         wrapper.client.off('telnyx.socket.close');
 
+        // Clean up currentCall on disconnect
+        if (wrapper.client.currentCall) {
+            wrapper.client.currentCall = null;
+        }
+
         wrapper.client.disconnect();
     }
 
@@ -377,6 +416,8 @@
 
         this.disconnect(elementId);
         wrapper.reconnectCount = 0;
+        // Clean up observer before re-creating client
+        this._disconnectObserver(elementId);
         this._createClient(wrapper);
     }
 
