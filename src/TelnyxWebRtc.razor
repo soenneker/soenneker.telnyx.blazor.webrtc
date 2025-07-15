@@ -22,6 +22,7 @@
     }
     else if (RenderVideo)
     {
+        <video id="@_localElementId" autoplay playsinline muted > </video>
         <video id="@_remoteElementId" autoplay playsinline muted > </video>
     }
 
@@ -110,7 +111,8 @@
 
     public string ElementId { get; set; } = $"telnyx-webrtc-{Guid.NewGuid()}";
 
-    private readonly string _remoteElementId = $"telnyx-element-{Guid.NewGuid()}";
+    private readonly string _remoteElementId = $"telnyx-remote-{Guid.NewGuid()}";
+    private readonly string _localElementId = $"telnyx-local-{Guid.NewGuid()}";
 
     private readonly CancellationTokenSource _cTs = new();
 
@@ -130,6 +132,12 @@
     {
         if (firstRender)
         {
+            if (RenderVideo)
+            {
+                if (Options.InitOptions.LocalElement == null)
+                    Options.InitOptions.LocalElement = _localElementId;
+            }
+
             if (Options.InitOptions.RemoteElement == null)
                 Options.InitOptions.RemoteElement = _remoteElementId;
 

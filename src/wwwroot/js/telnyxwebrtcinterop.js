@@ -41,8 +41,9 @@
 
         wrapper.client = new TelnyxWebRTC.TelnyxRTC(config.initOptions);
 
-        wrapper.client.remoteElement = config.remoteElement;
-        wrapper.client.localElement = config.localElement;
+        // not sure this is needed..
+        wrapper.client.remoteElement = config.initOptions.remoteElement;
+        wrapper.client.localElement = config.initOptions.localElement;
 
         if (config.audio)
             wrapper.client.enableMicrophone();
