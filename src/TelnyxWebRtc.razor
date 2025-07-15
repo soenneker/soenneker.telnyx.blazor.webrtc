@@ -14,12 +14,38 @@
 
 @implements ITelnyxWebRtc
 
-<div id="@ElementId" @attributes="Attributes" >@ChildContent</div>
+<div id="@ElementId" @attributes="Attributes" >
+
+    @if (RenderHiddenAudio)
+    {
+        <audio id="@_remoteElementId"
+               autoplay
+               playsinline
+               style="display:none" >
+        </audio>
+    }
+    else if (RenderVideo)
+    {
+        <video id="@_remoteElementId"
+               autoplay
+               playsinline
+               muted >
+        </video>
+    }
+
+    @ChildContent
+</div>
 
 @code {
 
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object?>? Attributes { get; set; }
+
+    [Parameter]
+    public bool RenderHiddenAudio { get; set; } = true;
+
+    [Parameter]
+    public bool RenderVideo { get; set; }
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -92,6 +118,8 @@
 
     public string ElementId { get; set; } = $"telnyx-webrtc-{Guid.NewGuid()}";
 
+    private readonly string _remoteElementId = $"telnyx-element-{Guid.NewGuid()}";
+
     private readonly CancellationTokenSource _cTs = new();
 
     private DotNetObjectReference<TelnyxWebRtc>? _dotNetReference;
@@ -110,6 +138,9 @@
     {
         if (firstRender)
         {
+            if (Options.InitOptions.RemoteElement == null)
+                Options.InitOptions.RemoteElement = _remoteElementId;
+
             await Initialize(null, _cTs.Token).NoSync();
         }
     }

@@ -14,6 +14,10 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// </summary>
 public interface ITelnyxWebRtc : IAsyncDisposable
 {
+    bool RenderHiddenAudio { get; set; }
+
+    bool RenderVideo { get; set; }
+
     /// <summary>
     /// Gets or sets the unique HTML element ID used to bind the WebRTC client instance in the DOM.
     /// This ID is used by the JavaScript interop layer to reference the correct video/audio context.
