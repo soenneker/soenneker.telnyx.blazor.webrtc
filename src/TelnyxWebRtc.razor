@@ -18,19 +18,11 @@
 
     @if (RenderHiddenAudio)
     {
-        <audio id="@_remoteElementId"
-               autoplay
-               playsinline
-               style="display:none" >
-        </audio>
+        <audio id="@_remoteElementId" autoplay playsinline style="display:none" > </audio>
     }
     else if (RenderVideo)
     {
-        <video id="@_remoteElementId"
-               autoplay
-               playsinline
-               muted >
-        </video>
+        <video id="@_remoteElementId" autoplay playsinline muted > </video>
     }
 
     @ChildContent
