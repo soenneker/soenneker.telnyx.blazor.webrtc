@@ -109,6 +109,12 @@
     [Parameter]
     public EventCallback OnDisconnected { get; set; }
 
+    [Parameter] 
+    public double SpeakerVolume { get; set; } = 1.0;
+
+    [Parameter] 
+    public EventCallback<double> SpeakerVolumeChanged { get; set; } 
+
     public string ElementId { get; set; } = $"telnyx-webrtc-{Guid.NewGuid()}";
 
     private readonly string _remoteElementId = $"telnyx-remote-{Guid.NewGuid()}";
@@ -123,6 +129,10 @@
 
     private bool _initialized;
 
+    private double _lastSpeakerVolume = 1.0;
+    private bool   _pendingVolumeApply;
+    private TelnyxCallState? _prevCallState;
+
     protected override async Task OnInitializedAsync()
     {
         await TelnyxWebRtcInterop.Initialize(Options?.UseCdn ?? true, _cTs.Token).NoSync();
@@ -132,17 +142,38 @@
     {
         if (firstRender)
         {
-            if (RenderVideo)
-            {
-                if (Options.InitOptions.LocalElement == null)
-                    Options.InitOptions.LocalElement = _localElementId;
-            }
+            if (RenderVideo && Options.InitOptions.LocalElement is null)
+                Options.InitOptions.LocalElement = _localElementId;
 
-            if (Options.InitOptions.RemoteElement == null)
+            if (Options.InitOptions.RemoteElement is null)
                 Options.InitOptions.RemoteElement = _remoteElementId;
 
             await Initialize(null, _cTs.Token).NoSync();
         }
+
+        if (RenderHiddenAudio && (firstRender || _pendingVolumeApply))
+        {
+            await ApplySpeakerVolumeAsync(SpeakerVolume, _cTs.Token).NoSync();
+            _pendingVolumeApply = false;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (RenderHiddenAudio && Math.Abs(SpeakerVolume - _lastSpeakerVolume) > 0.001)
+        {
+            _pendingVolumeApply = true;
+            _lastSpeakerVolume  = SpeakerVolume;
+        }
+    }
+
+    private async ValueTask ApplySpeakerVolumeAsync(double volume, CancellationToken ct = default)
+    {
+        if (!RenderHiddenAudio || TelnyxWebRtcInterop is null)
+            return;
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, _cTs.Token);
+        await TelnyxWebRtcInterop.SetAudioVolume(_remoteElementId, volume, linkedCts.Token).NoSync();
     }
 
     public async ValueTask Initialize(TelnyxClientOptions? options = null, CancellationToken cancellationToken = default)
@@ -654,31 +685,42 @@
         {
             case "initialized":
                 await OnInitialize.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
+
             case "ready":
                 await OnReady.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "error":
                 if (OnError.HasDelegate)
                     await OnError.InvokeAsync(jsonArgs).NoSync();
-                break;
+                return;
 
             case "notification":
                 try
                 {
                     var notification = JsonUtil.Deserialize<TelnyxNotification>(jsonArgs);
 
-                    if (OnNotification.HasDelegate && notification != null)
+                    if (OnNotification.HasDelegate && notification is not null)
                         await OnNotification.InvokeAsync(notification).NoSync();
 
                     switch (notification.Type)
                     {
                         case "callUpdate":
                         {
-                            TelnyxCallState? stateStr = notification.Call.State;
+                            TelnyxCallState? currentState = notification.Call.State;
 
-                            switch (stateStr.Name)
+                            /* ────── RESUME DETECTION ────── */
+                            if (_prevCallState == TelnyxCallState.Held && currentState == TelnyxCallState.Active)
+                            {
+                                if (OnCallResumed.HasDelegate)
+                                    await OnCallResumed.InvokeAsync(jsonArgs).NoSync();
+                            }
+
+                            _prevCallState = currentState;
+                            /* ─────────────────────────────────── */
+
+                            switch (currentState.Name)
                             {
                                 case nameof(TelnyxCallState.New):
                                 case nameof(TelnyxCallState.Trying):
@@ -692,7 +734,6 @@
                                 case nameof(TelnyxCallState.Answering):
                                 case nameof(TelnyxCallState.Early):
                                 case nameof(TelnyxCallState.Active):
-
                                     if (OnCallAnswered.HasDelegate)
                                         await OnCallAnswered.InvokeAsync(jsonArgs).NoSync();
                                     break;
@@ -712,76 +753,73 @@
 
                             break;
                         }
+
                         case "conferenceUpdate":
-                        {
                             if (OnConferenceUpdate.HasDelegate)
                                 await OnConferenceUpdate.InvokeAsync(jsonArgs).NoSync();
                             break;
-                        }
+
                         default:
-                        {
                             if (OnMessage.HasDelegate)
                                 await OnMessage.InvokeAsync(jsonArgs).NoSync();
                             break;
-                        }
                     }
                 }
-
                 catch (JsonException ex)
                 {
                     if (OnError.HasDelegate)
                         await OnError.InvokeAsync($"Failed to parse notification: {ex.Message}").NoSync();
                 }
 
-                break;
+                return;
 
             case "socket.open":
                 await OnSocketOpen.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "socket.close":
                 await OnSocketClose.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "socket.error":
                 if (OnSocketError.HasDelegate)
                     await OnSocketError.InvokeAsync(jsonArgs).NoSync();
-                break;
+                return;
 
             case "reconnecting":
                 await OnReconnecting.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "reconnected":
                 await OnReconnected.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "disconnected":
                 await OnDisconnected.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "localStream":
                 await OnLocalStream.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "remoteStream":
                 await OnRemoteStream.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "streamStopped":
                 await OnStreamStopped.InvokeIfHasDelegate().NoSync();
-                break;
+                return;
 
             case "stats.report":
             case "stats.frame":
                 if (OnStatsUpdate.HasDelegate)
                     await OnStatsUpdate.InvokeAsync(jsonArgs).NoSync();
-                break;
+                return;
 
             case "deviceChange":
                 if (OnDevicesChanged.HasDelegate)
                     await OnDevicesChanged.InvokeAsync(jsonArgs).NoSync();
-                break;
+                return;
         }
     }
 

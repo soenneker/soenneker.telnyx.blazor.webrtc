@@ -300,4 +300,9 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// Retrieves runtime call statistics such as bitrate, jitter, packet loss, etc., as a JSON string.
     /// </summary>
     ValueTask<string?> GetCallStats(string elementId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sets the volume of the audio element (0.0 to 1.0).
+    /// </summary>
+    ValueTask SetAudioVolume(string elementId, double volume, CancellationToken cancellationToken = default);
 }

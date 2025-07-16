@@ -131,6 +131,8 @@ public interface ITelnyxWebRtc : IAsyncDisposable
     /// </summary>
     EventCallback OnDisconnected { get; set; }
 
+    EventCallback<double> SpeakerVolumeChanged { get; set; }
+
     /// <summary>
     /// Initializes the Telnyx WebRTC client and sets up event bindings.
     /// </summary>
@@ -142,18 +144,21 @@ public interface ITelnyxWebRtc : IAsyncDisposable
     /// Places an outbound call to a number, SIP address, or extension using the provided call options.
     /// </summary>
     /// <param name="callOptions">Options including destination, caller ID, audio/video settings, etc.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask Call(TelnyxCallOptions callOptions, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Answers an inbound call, optionally providing constraints or initial media behavior.
     /// </summary>
     /// <param name="options">Optional configuration for how to answer (e.g., with muted audio).</param>
+    /// <param name="cancellationToken"></param>
     ValueTask Answer(TelnyxAnswerOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Ends the active call or conference session.
     /// </summary>
     /// <param name="options">Optional flags such as whether to send a hangup reason.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask Hangup(TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>

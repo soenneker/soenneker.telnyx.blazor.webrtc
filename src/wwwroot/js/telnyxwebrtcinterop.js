@@ -394,6 +394,13 @@
         this._clients.get(elementId)?.client?.localStream?.getVideoTracks()?.forEach(t => t.enabled = enabled);
     }
 
+    setAudioVolume(elementId, volume) {
+        const el = document.getElementById(elementId);
+        if (el && el.tagName === "AUDIO") {
+            el.volume = Math.max(0, Math.min(1, volume));
+        }
+    }
+
     disconnect(elementId) {
         const wrapper = this._clients.get(elementId);
         if (!wrapper?.client) return;

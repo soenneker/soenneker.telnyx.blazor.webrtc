@@ -249,6 +249,9 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     public ValueTask<string?> GetCallStats(string elementId, CancellationToken cancellationToken = default) =>
         _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getCallStats", cancellationToken, elementId);
 
+    public ValueTask SetAudioVolume(string elementId, double volume, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioVolume", cancellationToken, elementId, volume);
+
     public async ValueTask DisposeAsync()
     {
         await _resourceLoader.DisposeModule(_module).NoSync();
