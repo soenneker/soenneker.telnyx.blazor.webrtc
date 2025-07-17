@@ -24,6 +24,7 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// <param name="elementId">The DOM element identifier hosting the WebRTC client.</param>
     /// <param name="dotNetObjectRef">A .NET reference to the component receiving event callbacks.</param>
     /// <param name="options">Configuration options for the client.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask Create(string elementId, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -45,11 +46,6 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// Hangs up the current call with optional signaling metadata.
     /// </summary>
     ValueTask Hangup(string elementId, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Rejects an incoming call with optional signaling metadata.
-    /// </summary>
-    ValueTask Reject(string elementId, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Mutes the local user's microphone.

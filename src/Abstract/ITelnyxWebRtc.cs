@@ -155,16 +155,11 @@ public interface ITelnyxWebRtc : IAsyncDisposable
     ValueTask Answer(TelnyxAnswerOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Ends the active call or conference session.
+    /// Ends the active call or conference session. Also 'rejects' the call if you haven't picked up yet.
     /// </summary>
     /// <param name="options">Optional flags such as whether to send a hangup reason.</param>
     /// <param name="cancellationToken"></param>
     ValueTask Hangup(TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Rejects an incoming call with optional signaling metadata.
-    /// </summary>
-    ValueTask Reject(TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Disables the local microphone without affecting incoming audio.

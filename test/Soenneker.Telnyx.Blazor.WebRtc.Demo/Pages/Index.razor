@@ -1,40 +1,373 @@
 ﻿@page "/"
 @using Microsoft.Extensions.Logging
 @using Soenneker.Telnyx.Blazor.WebRtc.Configuration
+@using Soenneker.Telnyx.Blazor.WebRtc.Dtos
+@using System.Text.Json
 
 @inject ILogger<Index> Logger
 
-<img src="https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png" />
-<h1>Soenneker.Telnyx.Blazor.WebRtc demo</h1>
-<p>This page demonstrates some of the common usages for the interop library.</p>
-<br />
+<Row Class="mt-4" >
+    <Column md="8" >
+        <Card>
+            <CardHeader>
+                <h2 class="mb-0" >Telnyx WebRTC Professional Demo</h2>
+                <p class="text-muted mb-0" >All events, notifications, and call controls visible for troubleshooting</p>
+            </CardHeader>
+            <CardBody>
+                @if (_options != null)
+                {
+                    <TelnyxWebRtc Options="_options" @ref="_telnyxWebRtc"
+                                  OnNotification="OnNotification"
+                                  OnMessage="OnMessage"
+                                  OnError="OnError"
+                                  OnCallInitiated="OnCallInitiated"
+                                  OnCallAnswered="OnCallAnswered"
+                                  OnCallHangup="OnCallHangup"
+                                  OnCallHeld="OnCallHeld"
+                                  OnCallResumed="OnCallResumed"
+                                  OnLocalStream="OnLocalStream"
+                                  OnRemoteStream="OnRemoteStream"
+                                  OnStreamStopped="OnStreamStopped"
+                                  OnDevicesChanged="OnDevicesChanged"
+                                  OnConferenceUpdate="OnConferenceUpdate"
+                                  OnStatsUpdate="OnStatsUpdate"
+                                  OnSocketOpen="OnSocketOpen"
+                                  OnSocketClose="OnSocketClose"
+                                  OnSocketError="OnSocketError"
+                                  OnReconnecting="OnReconnecting"
+                                  OnReconnected="OnReconnected"
+                                  OnDisconnected="OnDisconnected"
+                                  SpeakerVolumeChanged="OnSpeakerVolumeChanged"
+                                  OnReady="OnReady"
+                                  OnRawSocketMessage="OnRawSocketMessage" />
+                }
 
-<hr />
+                <Row class="mt-4" >
+                    <Column>
+                        <Button Color="Color.Primary" Clicked="Connect" >Connect</Button>
+                        <Button Color="Color.Success" Clicked="Call" >Call</Button>
+                        <Button Color="Color.Danger" Clicked="Hangup" >Hangup</Button>
+                        <Button Color="Color.Warning" Clicked="Answer" >Answer</Button>
+                        <Button Color="Color.Secondary" Clicked="Mute" >Mute</Button>
+                        <Button Color="Color.Secondary" Clicked="Unmute" >Unmute</Button>
+                        <Button Color="Color.Info" Clicked="Hold" >Hold</Button>
+                        <Button Color="Color.Info" Clicked="Disconnect" >Disconnect</Button>
+                    </Column>
+                </Row>
 
-<TelnyxWebRtc Options="_options" @ref="_telnyxWebRtc"></TelnyxWebRtc>
+                <Row class="mt-4" >
+                    <Column>
+                        <h5>Current Call State</h5>
+                        @if (_currentCall is not null)
+                        {
+                            <Table Striped Bordered >
+                                <thead>
+                                    <tr>
+                                        <th>Property</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>CallId</td><td>@_currentCall.CallId</td>
+                                    </tr>
+                                    <tr>
+                                        <td>State</td><td>@_currentCall.State</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Direction</td><td>@_currentCall.Direction</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Caller</td><td>@_currentCall.CallerNumber</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Callee</td><td>@_currentCall.CalleeNumber</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Muted</td><td>@_currentCall.IsMuted?.ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td>On Hold</td><td>@_currentCall.IsOnHold?.ToString()</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Start Time</td><td>@_currentCall.StartTime</td>
+                                    </tr>
+                                    <tr>
+                                        <td>End Time</td><td>@_currentCall.EndTime</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Duration</td><td>@_currentCall.Duration</td>
+                                    </tr>
+                                </tbody>
+                            </Table>
+                        }
+                        else
+                        {
+                            <span class="text-muted" >No active call</span>
+                        }
+                    </Column>
+                </Row>
+            </CardBody>
+        </Card>
+    </Column>
+    <Column md="4" >
+        <Card Style="height: 90vh; overflow-y: auto; background: #181c20; color: #fff; border-radius: 1rem; box-shadow: 0 0 24px #0002;" >
+            <CardHeader Style="background: #23272b; border-top-left-radius: 1rem; border-top-right-radius: 1rem;" >
+                <h4 class="mb-0" style="color: #00bfae;" >Live Event Log</h4>
+            </CardHeader>
+            <CardBody>
+                <Button Color="Color.Light" Outline Class="mb-2" Clicked="ClearLog" >Clear Log</Button>
+                <div style="max-height: 75vh; overflow-y: auto; font-family: 'Fira Mono', monospace; font-size: 0.95em;" >
+                    @foreach (var entry in _logEntries.OrderByDescending(e => e.Timestamp))
+                    {
+                        <div style="margin-bottom: 1em;" >
+                            <span style="font-size: 0.85em; color: #aaa;" >@entry.Timestamp: </span>
+                            <span style="font-weight: bold; color: @(GetColor(entry.Type))" >@entry.Type</span>
+                            <pre style="background: #23272b; color: #fff; border-radius: 0.5em; padding: 0.5em; margin: 0.5em 0 0 0;">@entry.Message</pre>
+                        </div>
+                    }
+                </div>
+            </CardBody>
+        </Card>
+    </Column>
+</Row>
 
-<Button Clicked="Call" Color="Color.Primary">Call</Button>
-
-@code{
-
+@code {
     TelnyxWebRtc _telnyxWebRtc = null!;
+    private readonly TelnyxClientOptions _options;
 
-    private readonly TelnyxClientOptions _options = new()
+    public Index()
     {
-        InitOptions = new TelnyxClientInitOptions
+        _options = new TelnyxClientOptions
         {
-            Login = "",
-            Password = ""
-        }
+            AutoReconnect = true,
+            InitOptions = new TelnyxClientInitOptions
+            {
+                AutoReconnect = true,
+                Debug = true,
+                Login = "",
+                Password = ""
+            }
+        };
+    }
+
+    private TelnyxWebRtcCall? _currentCall;
+
+    private List<LogEntry> _logEntries = new();
+
+    private void AddLog(string type, object? message)
+    {
+        _logEntries.Add(new LogEntry
+        {
+            Type = type,
+            Message = message is string s ? s : JsonSerializer.Serialize(message, new JsonSerializerOptions {WriteIndented = true}),
+            Timestamp = DateTime.Now.ToString("HH:mm:ss.fff")
+        });
+        StateHasChanged();
+    }
+
+    private string GetColor(string type) => type switch
+    {
+        "Error" => "#ff5252",
+        "Notification" => "#00bfae",
+        "Call" => "#ffd600",
+        "Socket" => "#40c4ff",
+        "SocketMessage" => "#b388ff",
+        "Ping" => "#ffb300",
+        "Pong" => "#00bcd4",
+        "RawSocket" => "#ff4081",
+        "Info" => "#b2ff59",
+        "Registered" => "#00e676",
+        _ => "#fff"
     };
 
-    protected async Task Call()
+    private async Task Connect() => await _telnyxWebRtc.Connect();
+    private async Task Call() => await _telnyxWebRtc.Call(new TelnyxCallOptions { CallerNumber = "", DestinationNumber = "" });
+    private async Task Hangup() => await _telnyxWebRtc.Hangup();
+    private async Task Answer() => await _telnyxWebRtc.Answer();
+    private async Task Mute() => await _telnyxWebRtc.MuteAudio();
+    private async Task Unmute() => await _telnyxWebRtc.UnmuteAudio();
+    private async Task Hold() => await _telnyxWebRtc.Hold();
+    private async Task Disconnect() => await _telnyxWebRtc.Disconnect();
+
+    private void ClearLog() => _logEntries.Clear();
+
+    // Event handlers
+    private Task OnNotification(TelnyxNotification notification)
     {
-        const string phoneNumber = "";
+        AddLog("Notification", notification);
+        if (notification.Call is not null)
+            _currentCall = notification.Call;
+        return Task.CompletedTask;
+    }
 
-        await _telnyxWebRtc.Call(new TelnyxCallOptions { CallerNumber = "", DestinationNumber = phoneNumber });
+    private Task OnMessage(string msg)
+    {
+        AddLog("Info", msg);
+        return Task.CompletedTask;
+    }
 
-       // await _telnyxWebRtc.Hangup();
+    private Task OnError(string err)
+    {
+        AddLog("Error", err);
+        return Task.CompletedTask;
+    }
+
+    private Task OnCallInitiated(string msg)
+    {
+        AddLog("Call", msg);
+        return Task.CompletedTask;
+    }
+
+    private Task OnCallAnswered(string msg)
+    {
+        AddLog("Call", msg);
+        return Task.CompletedTask;
+    }
+
+    private Task OnCallHangup(string msg)
+    {
+        AddLog("Call", msg);
+        _currentCall = null;
+        return Task.CompletedTask;
+    }
+
+    private Task OnCallHeld(string msg)
+    {
+        AddLog("Call", msg);
+        return Task.CompletedTask;
+    }
+
+    private Task OnCallResumed(string msg)
+    {
+        AddLog("Call", msg);
+        return Task.CompletedTask;
+    }
+
+    private Task OnLocalStream()
+    {
+        AddLog("Info", "Local stream started");
+        return Task.CompletedTask;
+    }
+
+    private Task OnRemoteStream()
+    {
+        AddLog("Info", "Remote stream started");
+        return Task.CompletedTask;
+    }
+
+    private Task OnStreamStopped()
+    {
+        AddLog("Info", "Stream stopped");
+        return Task.CompletedTask;
+    }
+
+    private Task OnDevicesChanged(string msg)
+    {
+        AddLog("Info", $"Devices changed: {msg}");
+        return Task.CompletedTask;
+    }
+
+    private Task OnConferenceUpdate(string msg)
+    {
+        AddLog("Info", $"Conference update: {msg}");
+        return Task.CompletedTask;
+    }
+
+    private Task OnStatsUpdate(string msg)
+    {
+        AddLog("Info", $"Stats update: {msg}");
+        return Task.CompletedTask;
+    }
+
+    private Task OnSocketOpen()
+    {
+        AddLog("Socket", "Socket opened");
+        return Task.CompletedTask;
+    }
+
+    private Task OnSocketClose()
+    {
+        AddLog("Socket", "Socket closed");
+        return Task.CompletedTask;
+    }
+
+    private Task OnSocketError(string msg)
+    {
+        AddLog("Socket", $"Socket error: {msg}");
+        return Task.CompletedTask;
+    }
+
+    private Task OnReconnecting()
+    {
+        AddLog("Socket", "Reconnecting...");
+        return Task.CompletedTask;
+    }
+
+    private Task OnReconnected()
+    {
+        AddLog("Socket", "Reconnected");
+        return Task.CompletedTask;
+    }
+
+    private Task OnDisconnected()
+    {
+        AddLog("Socket", "Disconnected");
+        return Task.CompletedTask;
+    }
+
+    private Task OnSpeakerVolumeChanged(double vol)
+    {
+        AddLog("Info", $"Speaker volume changed: {vol}");
+        return Task.CompletedTask;
+    }
+
+    private Task OnReady()
+    {
+        AddLog("Registered", "Client is registered and ready.");
+        return Task.CompletedTask;
+    }
+
+    private Task OnSocketMessage(string msg)
+    {
+        AddLog("SocketMessage", msg);
+        return Task.CompletedTask;
+    }
+
+    private Task OnPing(string msg)
+    {
+        AddLog("Ping", msg);
+        return Task.CompletedTask;
+    }
+
+    private Task OnPong(string msg)
+    {
+        AddLog("Pong", msg);
+        return Task.CompletedTask;
+    }
+
+    private Task OnRawSocketMessage(string rawJson)
+    {
+        string pretty;
+        try
+        {
+            using var doc = JsonDocument.Parse(rawJson);
+            pretty = JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions {WriteIndented = true});
+        }
+        catch
+        {
+            pretty = rawJson;
+        }
+
+        AddLog("RawSocket", pretty);
+        return Task.CompletedTask;
+    }
+
+    private class LogEntry
+    {
+        public string Type { get; set; } = null!;
+        public string Message { get; set; } = null!;
+        public string Timestamp { get; set; } = null!;
     }
 
 }

@@ -115,6 +115,9 @@
     [Parameter] 
     public EventCallback<double> SpeakerVolumeChanged { get; set; }
 
+    [Parameter]
+    public EventCallback<string> OnRawSocketMessage { get; set; }
+
     private readonly string _guid = Guid.NewGuid().ToString();
 
     public string ElementId { get; set; }
@@ -230,15 +233,6 @@
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         await TelnyxWebRtcInterop.Hangup(ElementId, options, linkedCts.Token).NoSync();
-    }
-
-    public async ValueTask Reject(TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
-        await TelnyxWebRtcInterop.Reject(ElementId, options, linkedCts.Token).NoSync();
     }
 
     public async ValueTask MuteAudio(CancellationToken cancellationToken = default)
@@ -846,6 +840,11 @@
             case "deviceChange":
                 if (OnDevicesChanged.HasDelegate)
                     await OnDevicesChanged.InvokeAsync(jsonArgs).NoSync();
+                return;
+
+            case "rawSocketMessage":
+                if (OnRawSocketMessage.HasDelegate)
+                    await OnRawSocketMessage.InvokeAsync(jsonArgs).NoSync();
                 return;
         }
     }

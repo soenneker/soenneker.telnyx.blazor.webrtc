@@ -12,22 +12,6 @@
         }
     }
 
-    /* ---------- public helpers for INBOUND calls ---------- */
-
-    /**
-     * Decline / reject an incoming call.
-     */
-    reject(elementId, optionsJson) {
-        const call = this._clients.get(elementId)?.client?.currentCall;
-        if (!call) {
-            console.warn('TelnyxWebRtcInterop: Tried to reject but no currentCall is set.');
-            return;
-        }
-        const opts = optionsJson ? JSON.parse(optionsJson) : undefined;
-        call.hangup(opts);
-    }
-
-    /* ---------- unchanged PUBLIC API below ---------- */
     create(elementId, optionsJson, dotNetCallback) {
         if (this._clients.has(elementId)) {
             console.warn(`Telnyx WebRTC client already exists for "${elementId}".`);
@@ -51,6 +35,7 @@
 
     _createClient(wrapper) {
         const { config } = wrapper;
+
         wrapper.client = new TelnyxWebRTC.TelnyxRTC(config.initOptions);
 
         wrapper.client.remoteElement = config.initOptions.remoteElement;
@@ -61,6 +46,17 @@
 
         this._bindEvents(wrapper);
         wrapper.client.connect();
+        
+        // --- Forward all raw WebSocket messages to .NET ---
+        // Find the underlying WebSocket and hook into onmessage
+        const ws = wrapper.client.connection && wrapper.client.connection._wsClient;
+        if (ws) {
+            ws.addEventListener('message', (evt) => {
+                if (wrapper.dotNetCallback && evt && evt.data) {
+                    wrapper.dotNetCallback.invokeMethodAsync('HandleTelnyxEvent', 'rawSocketMessage', evt.data);
+                }
+            });
+        }
     }
 
     /* ---------- EVENT BINDING & HANDLERS ---------- */
@@ -84,7 +80,8 @@
         // session‑level events we simply forward
         [
             'ready', 'error', 'socket.open', 'socket.close',
-            'socket.error', 'reconnecting', 'reconnected', 'disconnected'
+            'socket.error', 'reconnecting', 'reconnected', 'disconnected',
+            'socket.message', 'ping', 'pong'
         ].forEach(e => client.on(`telnyx.${e}`, arg => safeInvoke(e, arg)));
 
         // central handler for call updates & inbound ringing
