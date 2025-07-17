@@ -90,6 +90,13 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         return _jsRuntime.InvokeVoidAsync($"{_moduleName}.hangup", cancellationToken, elementId);
     }
 
+    public ValueTask Reject(string elementId, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (options != null)
+            return _jsRuntime.InvokeVoidAsync($"{_moduleName}.reject", cancellationToken, elementId, JsonUtil.Serialize(options));
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.reject", cancellationToken, elementId);
+    }
+
     public ValueTask MuteAudio(string elementId, CancellationToken cancellationToken = default) =>
         _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteAudio", cancellationToken, elementId);
 

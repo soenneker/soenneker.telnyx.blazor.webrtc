@@ -232,6 +232,15 @@
         await TelnyxWebRtcInterop.Hangup(ElementId, options, linkedCts.Token).NoSync();
     }
 
+    public async ValueTask Reject(TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Reject(ElementId, options, linkedCts.Token).NoSync();
+    }
+
     public async ValueTask MuteAudio(CancellationToken cancellationToken = default)
     {
         if (!_initialized)

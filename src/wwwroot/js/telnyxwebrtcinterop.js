@@ -3,17 +3,31 @@
         this._clients = new Map();
         this._observers = new Map();
 
-        // Encapsulated unload handler: ensures cleanup on page unload, only added once
+        // one‑time window unload cleanup
         if (typeof window !== 'undefined' && !window._telnyxUnloadHandlerAdded) {
             window.addEventListener('unload', () => {
-                for (const elementId of this._clients.keys()) {
-                    this.unmount(elementId);
-                }
+                for (const id of this._clients.keys()) this.unmount(id);
             });
             window._telnyxUnloadHandlerAdded = true;
         }
     }
 
+    /* ---------- public helpers for INBOUND calls ---------- */
+
+    /**
+     * Decline / reject an incoming call.
+     */
+    reject(elementId, optionsJson) {
+        const call = this._clients.get(elementId)?.client?.currentCall;
+        if (!call) {
+            console.warn('TelnyxWebRtcInterop: Tried to reject but no currentCall is set.');
+            return;
+        }
+        const opts = optionsJson ? JSON.parse(optionsJson) : undefined;
+        call.hangup(opts);
+    }
+
+    /* ---------- unchanged PUBLIC API below ---------- */
     create(elementId, optionsJson, dotNetCallback) {
         if (this._clients.has(elementId)) {
             console.warn(`Telnyx WebRTC client already exists for "${elementId}".`);
@@ -32,85 +46,101 @@
 
         this._clients.set(elementId, wrapper);
         this._createClient(wrapper);
-
-        dotNetCallback.invokeMethodAsync("HandleTelnyxEvent", "initialized", "");
+        dotNetCallback.invokeMethodAsync('HandleTelnyxEvent', 'initialized', '');
     }
 
     _createClient(wrapper) {
         const { config } = wrapper;
-
         wrapper.client = new TelnyxWebRTC.TelnyxRTC(config.initOptions);
 
-        // not sure this is needed..
         wrapper.client.remoteElement = config.initOptions.remoteElement;
         wrapper.client.localElement = config.initOptions.localElement;
 
-        if (config.audio)
-            wrapper.client.enableMicrophone();
-        else
-            wrapper.client.disableMicrophone();
-
-        if (config.video)
-            wrapper.client.enableWebcam();
-        else
-            wrapper.client.disableWebcam();
+        config.audio ? wrapper.client.enableMicrophone() : wrapper.client.disableMicrophone();
+        config.video ? wrapper.client.enableWebcam() : wrapper.client.disableWebcam();
 
         this._bindEvents(wrapper);
-
         wrapper.client.connect();
     }
 
-    _bindEvents(wrapper) {
+    /* ---------- EVENT BINDING & HANDLERS ---------- */
 
+    _bindEvents(wrapper) {
         const { client, dotNetCallback } = wrapper;
 
-        const safeStringify = (obj, indent = 2) => {
+        const safeStringify = (o, indent = 2) => {
             const seen = new WeakSet();
-            return JSON.stringify(obj, (key, value) => {
-                if (typeof value === "object" && value !== null) {
-                    if (seen.has(value)) {
-                        return "[Circular]";
-                    }
-                    seen.add(value);
+            return JSON.stringify(o, (k, v) => {
+                if (typeof v === 'object' && v !== null) {
+                    if (seen.has(v)) return '[Circular]';
+                    seen.add(v);
                 }
-                return value;
+                return v;
             }, indent);
         };
+        const safeInvoke = (evt, args) =>
+            dotNetCallback.invokeMethodAsync('HandleTelnyxEvent', evt, safeStringify(args));
 
-        const safeInvoke = (event, args) => {
-            dotNetCallback.invokeMethodAsync("HandleTelnyxEvent", event, safeStringify(args));
-        };
-
-        const forward = (eventName) => {
-            client.on(`telnyx.${eventName}`, (arg) => {
-                safeInvoke(eventName, arg);
-            });
-        };
-
+        // session‑level events we simply forward
         [
-            "ready",
-            "error",
-            "notification",
-            "socket.open",
-            "socket.close",
-            "socket.error",
-            "reconnecting",
-            "reconnected",
-            "disconnected"
-        ].forEach(forward);
+            'ready', 'error', 'socket.open', 'socket.close',
+            'socket.error', 'reconnecting', 'reconnected', 'disconnected'
+        ].forEach(e => client.on(`telnyx.${e}`, arg => safeInvoke(e, arg)));
 
-        client.on('telnyx.notification', (notification) => {
+        // central handler for call updates & inbound ringing
+        client.on('telnyx.notification', notification => {
             safeInvoke('notification', notification);
-            if (notification.type === 'callUpdate' && notification.call?.state === 'ready') {
-                wrapper.reconnectCount = 0;
-            } else if (notification.type === 'callUpdate' && notification.call?.state === 'disconnected') {
-                if (wrapper.config.autoReconnect && wrapper.reconnectCount < wrapper.config.reconnectAttempts) {
-                    wrapper.reconnectCount++;
-                    setTimeout(() => this._createClient(wrapper), wrapper.config.reconnectDelay);
-                }
-            }
+
+            if (notification.type !== 'callUpdate' || !notification.call) return;
+
+            this._handleCallUpdate(wrapper, notification.call, safeInvoke);
         });
     }
+
+    /**
+     * Handles all call state transitions (both outbound & inbound).
+     */
+    _handleCallUpdate(wrapper, call, safeInvoke) {
+        const { config } = wrapper;
+        const state = call.state;
+
+        // Always keep the reference fresh
+        wrapper.client.currentCall = call;
+
+        switch (state) {
+            case 'ringing': {                        // <-- INCOMING
+                safeInvoke('incoming', call);
+
+                if (config.autoAnswer) {
+                    try { call.answer(); }
+                    catch (err) { console.error('Auto‑answer failed:', err); }
+                }
+                break;
+            }
+
+            case 'active':                           // answered / connected
+                safeInvoke('incomingAnswered', call);
+                wrapper.reconnectCount = 0;
+                break;
+
+            case 'done':
+            case 'disconnected':                     // call ended
+                safeInvoke('incomingRejected', call);
+                wrapper.client.currentCall = null;
+
+                if (config.autoReconnect &&
+                    wrapper.reconnectCount < config.reconnectAttempts) {
+                    wrapper.reconnectCount++;
+                    setTimeout(() => this._createClient(wrapper), config.reconnectDelay);
+                }
+                break;
+
+            default:
+                // other states: new, held, hold, etc. – still forward
+                safeInvoke(`state:${state}`, call);
+        }
+    }
+
 
     call(elementId, optionsJson) {
         const wrapper = this._clients.get(elementId);

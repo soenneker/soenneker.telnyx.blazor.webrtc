@@ -47,6 +47,11 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     ValueTask Hangup(string elementId, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Rejects an incoming call with optional signaling metadata.
+    /// </summary>
+    ValueTask Reject(string elementId, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Mutes the local user's microphone.
     /// </summary>
     ValueTask MuteAudio(string elementId, CancellationToken cancellationToken = default);
