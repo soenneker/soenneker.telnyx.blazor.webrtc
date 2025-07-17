@@ -206,6 +206,9 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     public ValueTask Unmount(string elementId, CancellationToken cancellationToken = default) =>
         _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmount", cancellationToken, elementId);
 
+    public ValueTask Connect(string elementId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.connect", cancellationToken, elementId);
+
     // Conference control methods
     public ValueTask ListVideoLayouts(string elementId, CancellationToken cancellationToken = default) =>
         _jsRuntime.InvokeVoidAsync($"{_moduleName}.listVideoLayouts", cancellationToken, elementId);

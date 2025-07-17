@@ -113,12 +113,14 @@
     public double SpeakerVolume { get; set; } = 1.0;
 
     [Parameter] 
-    public EventCallback<double> SpeakerVolumeChanged { get; set; } 
+    public EventCallback<double> SpeakerVolumeChanged { get; set; }
 
-    public string ElementId { get; set; } = $"telnyx-webrtc-{Guid.NewGuid()}";
+    private readonly string _guid = Guid.NewGuid().ToString();
 
-    private readonly string _remoteElementId = $"telnyx-remote-{Guid.NewGuid()}";
-    private readonly string _localElementId = $"telnyx-local-{Guid.NewGuid()}";
+    public string ElementId { get; set; }
+
+    private readonly string _remoteElementId;
+    private readonly string _localElementId;
 
     private readonly CancellationTokenSource _cTs = new();
 
@@ -132,6 +134,13 @@
     private double _lastSpeakerVolume = 1.0;
     private bool   _pendingVolumeApply;
     private TelnyxCallState? _prevCallState;
+
+    public TelnyxWebRtc()
+    {
+        ElementId = $"telnyx-webrtc-{_guid}";
+        _remoteElementId = $"telnyx-remote-{_guid}";
+        _localElementId = $"telnyx-local-{_guid}";
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -549,6 +558,15 @@
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
         await TelnyxWebRtcInterop.Reconnect(ElementId, linkedCts.Token).NoSync();
+    }
+
+    public async ValueTask Connect(CancellationToken cancellationToken = default)
+    {
+        if (!_initialized)
+            throw new InvalidOperationException("WebRTC has not been initialized yet.");
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cTs.Token);
+        await TelnyxWebRtcInterop.Connect(ElementId, linkedCts.Token).NoSync();
     }
 
     // Conference control methods

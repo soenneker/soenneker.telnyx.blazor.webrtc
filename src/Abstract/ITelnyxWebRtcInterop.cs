@@ -305,4 +305,9 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// Sets the volume of the audio element (0.0 to 1.0).
     /// </summary>
     ValueTask SetAudioVolume(string elementId, double volume, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Explicitly connects the Telnyx WebRTC client for the given element.
+    /// </summary>
+    ValueTask Connect(string elementId, CancellationToken cancellationToken = default);
 }

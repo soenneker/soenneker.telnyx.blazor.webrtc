@@ -344,6 +344,11 @@ public interface ITelnyxWebRtc : IAsyncDisposable
     ValueTask Reconnect(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Explicitly connects the Telnyx WebRTC client to the signaling server.
+    /// </summary>
+    ValueTask Connect(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Lists all available conference video layouts (grid, speaker view, etc.).
     /// </summary>
     ValueTask ListVideoLayouts(CancellationToken cancellationToken = default);

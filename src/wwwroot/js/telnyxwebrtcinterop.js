@@ -429,6 +429,13 @@
         this._createClient(wrapper);
     }
 
+    connect(elementId) {
+        const wrapper = this._clients.get(elementId);
+        if (wrapper?.client) {
+            wrapper.client.connect();
+        }
+    }
+
     unmount(elementId) {
         const wrapper = this._clients.get(elementId);
         if (!wrapper) return;
