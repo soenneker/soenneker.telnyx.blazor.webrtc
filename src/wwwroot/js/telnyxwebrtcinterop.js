@@ -121,7 +121,7 @@
                 break;
 
             case 'done':
-            case 'disconnected':                     // call ended
+            case 'disconnected':                    // call ended (abnormal or connection loss)
                 safeInvoke('incomingRejected', call);
                 wrapper.client.currentCall = null;
 
@@ -130,6 +130,14 @@
                     wrapper.reconnectCount++;
                     setTimeout(() => this._createClient(wrapper), config.reconnectDelay);
                 }
+                break;
+
+            case 'hangup':                          // explicit/intentional end
+            case 'destroy':                      
+            case 'purge':                         
+                safeInvoke('incomingRejected', call);
+                wrapper.client.currentCall = null;
+                // Do NOT auto-reconnect here
                 break;
 
             default:
