@@ -5,7 +5,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 /// <summary>
 /// Represents options used when answering a Telnyx WebRTC call.
 /// </summary>
-public class TelnyxAnswerOptions
+public sealed class TelnyxAnswerOptions
 {
     /// <summary>
     /// Indicates whether video should be enabled when answering the call.
@@ -26,6 +26,9 @@ public class TelnyxAnswerOptions
     [JsonPropertyName("preferredCodecs")]
     public object[]? PreferredCodecs { get; set; }
 
+    /// <summary>
+    /// Base64 encoded client state for correlating events with the call.
+    /// </summary>
     [JsonPropertyName("clientState")]
     public string? ClientState { get; set; }
 }

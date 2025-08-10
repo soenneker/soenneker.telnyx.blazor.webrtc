@@ -5,7 +5,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 /// <summary>
 /// Represents caller information used during a screen sharing session in a Telnyx WebRTC call.
 /// </summary>
-public class TelnyxScreenShareOptions
+public sealed class TelnyxScreenShareOptions
 {
     /// <summary>
     /// The display name of the remote party initiating the screen share.
