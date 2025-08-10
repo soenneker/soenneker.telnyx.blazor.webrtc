@@ -205,4 +205,10 @@ public sealed class TelnyxCallOptions
     /// </summary>
     [JsonPropertyName("forceRelayCandidate")]
     public bool? ForceRelayCandidate { get; set; }
+
+    /// <summary>
+    /// Base64 encoded client state for correlating events with the call.
+    /// </summary>
+    [JsonPropertyName("clientState")]
+    public string? ClientState { get; set; }
 }
