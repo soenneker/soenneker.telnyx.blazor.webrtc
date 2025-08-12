@@ -35,8 +35,8 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
             if (useCdn)
             {
-                await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.22.14/lib/bundle.js", "TelnyxWebRTC",
-                                         integrity: "sha256-JgeyoGNTCgSh8q4Vkh2Obb69FTHCA6l/Y56FkwRrGG8=", cancellationToken: token)
+                await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.22.17/lib/bundle.js", "TelnyxWebRTC",
+                                         integrity: "sha256-uiKtParibFFpEaHhD+X8rgPhdUAWgcDhHKXwTzqARbE=", cancellationToken: token)
                                      .NoSync();
             }
             else
