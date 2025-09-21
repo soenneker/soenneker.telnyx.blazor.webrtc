@@ -12,7 +12,7 @@
         }
     }
 
-    create(elementId, optionsJson, dotNetCallback) {
+    create( Id!, optionsJson, dotNetCallback) {
         if (this._clients.has(elementId)) {
             console.warn(`Telnyx WebRTC client already exists for "${elementId}".`);
             return;
@@ -21,14 +21,14 @@
         const config = JSON.parse(optionsJson);
 
         const wrapper = {
-            id: elementId,
+            id: Id!,
             dotNetCallback,
             reconnectCount: 0,
             config,
             client: null
         };
 
-        this._clients.set(elementId, wrapper);
+        this._clients.set( Id!, wrapper);
         this._createClient(wrapper);
         dotNetCallback.invokeMethodAsync('HandleTelnyxEvent', 'initialized', '');
     }
@@ -147,7 +147,7 @@
     }
 
 
-    call(elementId, optionsJson) {
+    call( Id!, optionsJson) {
         const wrapper = this._clients.get(elementId);
         if (!wrapper?.client) return;
 
@@ -171,7 +171,7 @@
         }
     }
 
-    answer(elementId, optionsJson) {
+    answer( Id!, optionsJson) {
         const wrapper = this._clients.get(elementId);
         if (!wrapper?.client?.currentCall) {
             console.warn('TelnyxWebRtcInterop: Tried to answer but no currentCall is set.');
@@ -186,7 +186,7 @@
         }
     }
 
-    hangup(elementId, optionsJson) {
+    hangup( Id!, optionsJson) {
         const wrapper = this._clients.get(elementId);
         if (!wrapper?.client?.currentCall) {
             console.warn('TelnyxWebRtcInterop: Tried to hangup but no currentCall is set.');
@@ -251,27 +251,27 @@
         this._clients.get(elementId)?.client?.currentCall?.toggleHold();
     }
 
-    dtmf(elementId, digit) {
+    dtmf( Id!, digit) {
         this._clients.get(elementId)?.client?.currentCall?.dtmf(digit);
     }
 
-    message(elementId, to, body) {
+    message( Id!, to, body) {
         this._clients.get(elementId)?.client?.currentCall?.message(to, body);
     }
 
-    setAudioInDevice(elementId, deviceId) {
+    setAudioInDevice( Id!, deviceId) {
         this._clients.get(elementId)?.client?.currentCall?.setAudioInDevice(deviceId);
     }
 
-    setVideoDevice(elementId, deviceId) {
+    setVideoDevice( Id!, deviceId) {
         this._clients.get(elementId)?.client?.currentCall?.setVideoDevice(deviceId);
     }
 
-    setAudioOutDevice(elementId, deviceId) {
+    setAudioOutDevice( Id!, deviceId) {
         this._clients.get(elementId)?.client?.currentCall?.setAudioOutDevice(deviceId);
     }
 
-    startScreenShare(elementId, optionsJson) {
+    startScreenShare( Id!, optionsJson) {
         const wrapper = this._clients.get(elementId);
         if (!wrapper?.client?.currentCall) return;
 
@@ -283,11 +283,11 @@
         this._clients.get(elementId)?.client?.currentCall?.stopScreenShare();
     }
 
-    setAudioBandwidth(elementId, bps) {
+    setAudioBandwidth( Id!, bps) {
         this._clients.get(elementId)?.client?.currentCall?.setAudioBandwidthEncodingsMaxBps(bps);
     }
 
-    setVideoBandwidth(elementId, bps) {
+    setVideoBandwidth( Id!, bps) {
         this._clients.get(elementId)?.client?.currentCall?.setVideoBandwidthEncodingsMaxBps(bps);
     }
 
@@ -355,7 +355,7 @@
         });
     }
 
-    checkPermissions(elementId, audio = true, video = true) {
+    checkPermissions( Id!, audio = true, video = true) {
         return new Promise((resolve) => {
             const client = this._clients.get(elementId)?.client;
             if (!client) {
@@ -371,7 +371,7 @@
         });
     }
 
-    setAudioSettings(elementId, settingsJson) {
+    setAudioSettings( Id!, settingsJson) {
         return new Promise((resolve) => {
             const client = this._clients.get(elementId)?.client;
             if (!client) {
@@ -388,7 +388,7 @@
         });
     }
 
-    setVideoSettings(elementId, settingsJson) {
+    setVideoSettings( Id!, settingsJson) {
         return new Promise((resolve) => {
             const client = this._clients.get(elementId)?.client;
             if (!client) {
@@ -421,15 +421,15 @@
         this._clients.get(elementId)?.client?.disableWebcam();
     }
 
-    toggleAudio(elementId, enabled) {
+    toggleAudio( Id!, enabled) {
         this._clients.get(elementId)?.client?.localStream?.getAudioTracks()?.forEach(t => t.enabled = enabled);
     }
 
-    toggleVideo(elementId, enabled) {
+    toggleVideo( Id!, enabled) {
         this._clients.get(elementId)?.client?.localStream?.getVideoTracks()?.forEach(t => t.enabled = enabled);
     }
 
-    setAudioVolume(elementId, volume) {
+    setAudioVolume( Id!, volume) {
         const el = document.getElementById(elementId);
         if (el && el.tagName === "AUDIO") {
             el.volume = Math.max(0, Math.min(1, volume));
@@ -503,7 +503,7 @@
         });
 
         observer.observe(el.parentNode, { childList: true });
-        this._observers.set(elementId, observer);
+        this._observers.set( Id!, observer);
     }
 
     _disconnectObserver(elementId) {
@@ -519,11 +519,11 @@
         this._clients.get(elementId)?.client?.currentCall?.listVideoLayouts();
     }
 
-    setVideoLayout(elementId, layout, canvas) {
+    setVideoLayout( Id!, layout, canvas) {
         this._clients.get(elementId)?.client?.currentCall?.setVideoLayout(layout, canvas);
     }
 
-    playMedia(elementId, source) {
+    playMedia( Id!, source) {
         this._clients.get(elementId)?.client?.currentCall?.playMedia(source);
     }
 
@@ -531,7 +531,7 @@
         this._clients.get(elementId)?.client?.currentCall?.stopMedia();
     }
 
-    startRecord(elementId, filename) {
+    startRecord( Id!, filename) {
         this._clients.get(elementId)?.client?.currentCall?.startRecord(filename);
     }
 
@@ -539,31 +539,31 @@
         this._clients.get(elementId)?.client?.currentCall?.stopRecord();
     }
 
-    sendChatMessage(elementId, message, type) {
+    sendChatMessage( Id!, message, type) {
         this._clients.get(elementId)?.client?.currentCall?.sendChatMessage(message, type);
     }
 
-    snapshot(elementId, filename) {
+    snapshot( Id!, filename) {
         this._clients.get(elementId)?.client?.currentCall?.snapshot(filename);
     }
 
-    muteMic(elementId, participantId) {
+    muteMic( Id!, participantId) {
         this._clients.get(elementId)?.client?.currentCall?.muteMic(participantId);
     }
 
-    muteVideoParticipant(elementId, participantId) {
+    muteVideoParticipant( Id!, participantId) {
         this._clients.get(elementId)?.client?.currentCall?.muteVideo(participantId);
     }
 
-    kick(elementId, participantId) {
+    kick( Id!, participantId) {
         this._clients.get(elementId)?.client?.currentCall?.kick(participantId);
     }
 
-    volumeUp(elementId, participantId) {
+    volumeUp( Id!, participantId) {
         this._clients.get(elementId)?.client?.currentCall?.volumeUp(participantId);
     }
 
-    volumeDown(elementId, participantId) {
+    volumeDown( Id!, participantId) {
         this._clients.get(elementId)?.client?.currentCall?.volumeDown(participantId);
     }
 

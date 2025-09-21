@@ -6,7 +6,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Enums;
 /// Represents the lifecycle states of a Telnyx WebRTC call.
 /// </summary>
 [Intellenum<string>]
-public partial class TelnyxCallState
+public sealed partial class TelnyxCallState
 {
     /// <summary>New call has been created in the client.</summary>
     public static readonly TelnyxCallState New = new("new");

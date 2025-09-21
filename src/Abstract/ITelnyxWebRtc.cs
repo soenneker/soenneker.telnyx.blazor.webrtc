@@ -4,7 +4,7 @@ using Soenneker.Telnyx.Blazor.WebRtc.Dtos;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark.Components.Cancellable.Abstract;
+using Soenneker.Quark.Components.Core.Cancellable.Abstract;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 
@@ -12,17 +12,11 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// Defines a complete contract for managing Telnyx WebRTC client operations within a Blazor WebAssembly component.
 /// Supports call lifecycle, media control, device handling, conferencing, and statistics.
 /// </summary>
-public interface ITelnyxWebRtc : ICancellableComponent
+public interface ITelnyxWebRtc : ICoreCancellableElement
 {
     bool RenderHiddenAudio { get; set; }
 
     bool RenderVideo { get; set; }
-
-    /// <summary>
-    /// Gets or sets the unique HTML element ID used to bind the WebRTC client instance in the DOM.
-    /// This ID is used by the JavaScript interop layer to reference the correct video/audio context.
-    /// </summary>
-    string ElementId { get; set; }
 
     /// <summary>
     /// Triggered when the component begins initialization.

@@ -7,7 +7,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Enums;
 /// Used to specify whether the client should connect to the development or production Telnyx environment.
 /// </summary>
 [Intellenum<string>]
-public partial class TelnyxEnvironment
+public sealed partial class TelnyxEnvironment
 {
     /// <summary>
     /// The development environment. Use this when testing with a non-production Telnyx configuration.

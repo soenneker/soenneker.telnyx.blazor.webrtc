@@ -13,10 +13,10 @@
 
 @inject ITelnyxWebRtcInterop TelnyxWebRtcInterop
 
-@inherits Soenneker.Quark.Components.Cancellable.CancellableComponent
+@inherits Soenneker.Quark.Components.Core.Cancellable.CoreCancellableElement
 @implements ITelnyxWebRtc
 
-<div id="@ElementId" @attributes="Attributes" >
+<div id="@Id" @attributes="Attributes" >
 
     @if (RenderHiddenAudio)
     {
@@ -33,17 +33,11 @@
 
 @code {
 
-    [Parameter(CaptureUnmatchedValues = true)]
-    public Dictionary<string, object?>? Attributes { get; set; }
-
     [Parameter]
     public bool RenderHiddenAudio { get; set; } = true;
 
     [Parameter]
     public bool RenderVideo { get; set; }
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
     public EventCallback OnInitialize { get; set; }
@@ -122,8 +116,6 @@
 
     private readonly string _guid = Guid.NewGuid().ToString();
 
-    public string ElementId { get; set; }
-
     private readonly string _remoteElementId;
     private readonly string _localElementId;
 
@@ -140,7 +132,7 @@
 
     public TelnyxWebRtc()
     {
-        ElementId = $"telnyx-webrtc-{_guid}";
+        Id = $"telnyx-webrtc-{_guid}";
         _remoteElementId = $"telnyx-remote-{_guid}";
         _localElementId = $"telnyx-local-{_guid}";
     }
@@ -184,7 +176,7 @@
         if (!RenderHiddenAudio || TelnyxWebRtcInterop is null)
             return;
 
-        await TelnyxWebRtcInterop.SetAudioVolume(_remoteElementId, volume, ct).NoSync();
+        await TelnyxWebRtcInterop.SetAudioVolume(_remoteElementId!, volume, ct).NoSync();
     }
 
     public async ValueTask Initialize(TelnyxClientOptions? options = null, CancellationToken cancellationToken = default)
@@ -203,8 +195,8 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Create(ElementId, _dotNetReference, Options, linked).NoSync();
-            await TelnyxWebRtcInterop.CreateObserver(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Create( Id!, _dotNetReference, Options, linked).NoSync();
+            await TelnyxWebRtcInterop.CreateObserver( Id!, linked).NoSync();
         }
     }
 
@@ -217,7 +209,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Call(ElementId, callOptions, linked).NoSync();
+            await TelnyxWebRtcInterop.Call( Id!, callOptions, linked).NoSync();
         }
     }
 
@@ -230,7 +222,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Answer(ElementId, options, linked).NoSync();
+            await TelnyxWebRtcInterop.Answer( Id!, options, linked).NoSync();
         }
     }
 
@@ -243,7 +235,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Hangup(ElementId, options, linked).NoSync();
+            await TelnyxWebRtcInterop.Hangup( Id!, options, linked).NoSync();
         }
     }
 
@@ -256,7 +248,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.MuteAudio(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.MuteAudio( Id!, linked).NoSync();
         }
     }
 
@@ -269,7 +261,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.UnmuteAudio(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.UnmuteAudio( Id!, linked).NoSync();
         }
     }
 
@@ -282,7 +274,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.ToggleAudioMute(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.ToggleAudioMute( Id!, linked).NoSync();
         }
     }
 
@@ -295,7 +287,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.MuteVideo(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.MuteVideo( Id!, linked).NoSync();
         }
     }
 
@@ -308,7 +300,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.UnmuteVideo(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.UnmuteVideo( Id!, linked).NoSync();
         }
     }
 
@@ -321,7 +313,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.ToggleVideoMute(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.ToggleVideoMute( Id!, linked).NoSync();
         }
     }
 
@@ -334,7 +326,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Deaf(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Deaf( Id!, linked).NoSync();
         }
     }
 
@@ -347,7 +339,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Undeaf(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Undeaf( Id!, linked).NoSync();
         }
     }
 
@@ -360,7 +352,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.ToggleDeaf(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.ToggleDeaf( Id!, linked).NoSync();
         }
     }
 
@@ -373,7 +365,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Hold(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Hold( Id!, linked).NoSync();
         }
     }
 
@@ -386,7 +378,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Unhold(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Unhold( Id!, linked).NoSync();
         }
     }
 
@@ -399,7 +391,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.ToggleHold(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.ToggleHold( Id!, linked).NoSync();
         }
     }
 
@@ -412,7 +404,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Dtmf(ElementId, digit, linked).NoSync();
+            await TelnyxWebRtcInterop.Dtmf( Id!, digit, linked).NoSync();
         }
     }
 
@@ -425,7 +417,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Message(ElementId, to, body, linked).NoSync();
+            await TelnyxWebRtcInterop.Message( Id!, to, body, linked).NoSync();
         }
     }
 
@@ -438,7 +430,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.SetAudioInDevice(ElementId, deviceId, linked).NoSync();
+            await TelnyxWebRtcInterop.SetAudioInDevice( Id!, deviceId, linked).NoSync();
         }
     }
 
@@ -451,7 +443,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.SetVideoDevice(ElementId, deviceId, linked).NoSync();
+            await TelnyxWebRtcInterop.SetVideoDevice( Id!, deviceId, linked).NoSync();
         }
     }
 
@@ -464,7 +456,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.SetAudioOutDevice(ElementId, deviceId, linked).NoSync();
+            await TelnyxWebRtcInterop.SetAudioOutDevice( Id!, deviceId, linked).NoSync();
         }
     }
 
@@ -477,7 +469,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.StartScreenShare(ElementId, options, linked).NoSync();
+            await TelnyxWebRtcInterop.StartScreenShare( Id!, options, linked).NoSync();
         }
     }
 
@@ -490,7 +482,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.StopScreenShare(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.StopScreenShare( Id!, linked).NoSync();
         }
     }
 
@@ -503,7 +495,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.SetAudioBandwidth(ElementId, bps, linked).NoSync();
+            await TelnyxWebRtcInterop.SetAudioBandwidth( Id!, bps, linked).NoSync();
         }
     }
 
@@ -516,7 +508,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.SetVideoBandwidth(ElementId, bps, linked).NoSync();
+            await TelnyxWebRtcInterop.SetVideoBandwidth( Id!, bps, linked).NoSync();
         }
     }
 
@@ -529,7 +521,7 @@
 
         using (cts)
         {
-            string json = await TelnyxWebRtcInterop.GetDevices(ElementId, linked).NoSync();
+            string json = await TelnyxWebRtcInterop.GetDevices( Id!, linked).NoSync();
             return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
         }
     }
@@ -543,7 +535,7 @@
 
         using (cts)
         {
-            string json = await TelnyxWebRtcInterop.GetVideoDevices(ElementId, linked).NoSync();
+            string json = await TelnyxWebRtcInterop.GetVideoDevices( Id!, linked).NoSync();
             return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
         }
     }
@@ -557,7 +549,7 @@
 
         using (cts)
         {
-            string json = await TelnyxWebRtcInterop.GetAudioInDevices(ElementId, linked).NoSync();
+            string json = await TelnyxWebRtcInterop.GetAudioInDevices( Id!, linked).NoSync();
             return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
         }
     }
@@ -571,7 +563,7 @@
 
         using (cts)
         {
-            string json = await TelnyxWebRtcInterop.GetAudioOutDevices(ElementId, linked).NoSync();
+            string json = await TelnyxWebRtcInterop.GetAudioOutDevices( Id!, linked).NoSync();
             return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
         }
     }
@@ -585,7 +577,7 @@
 
         using (cts)
         {
-            return await TelnyxWebRtcInterop.CheckPermissions(ElementId, audio, video, linked).NoSync();
+            return await TelnyxWebRtcInterop.CheckPermissions( Id!, audio, video, linked).NoSync();
         }
     }
 
@@ -598,7 +590,7 @@
 
         using (cts)
         {
-            return await TelnyxWebRtcInterop.SetAudioSettings(ElementId, settings, linked).NoSync();
+            return await TelnyxWebRtcInterop.SetAudioSettings( Id!, settings, linked).NoSync();
         }
     }
 
@@ -611,7 +603,7 @@
 
         using (cts)
         {
-            return await TelnyxWebRtcInterop.SetVideoSettings(ElementId, settings, linked).NoSync();
+            return await TelnyxWebRtcInterop.SetVideoSettings( Id!, settings, linked).NoSync();
         }
     }
 
@@ -624,7 +616,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.EnableMicrophone(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.EnableMicrophone( Id!, linked).NoSync();
         }
     }
 
@@ -637,7 +629,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.DisableMicrophone(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.DisableMicrophone( Id!, linked).NoSync();
         }
     }
 
@@ -650,7 +642,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.EnableWebcam(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.EnableWebcam( Id!, linked).NoSync();
         }
     }
 
@@ -663,7 +655,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.DisableWebcam(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.DisableWebcam( Id!, linked).NoSync();
         }
     }
 
@@ -676,7 +668,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.ToggleAudio(ElementId, enabled, linked).NoSync();
+            await TelnyxWebRtcInterop.ToggleAudio( Id!, enabled, linked).NoSync();
         }
     }
 
@@ -689,7 +681,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.ToggleVideo(ElementId, enabled, linked).NoSync();
+            await TelnyxWebRtcInterop.ToggleVideo( Id!, enabled, linked).NoSync();
         }
     }
 
@@ -702,7 +694,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Disconnect(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Disconnect( Id!, linked).NoSync();
         }
     }
 
@@ -715,7 +707,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Reconnect(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Reconnect( Id!, linked).NoSync();
         }
     }
 
@@ -728,7 +720,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Connect(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.Connect( Id!, linked).NoSync();
         }
     }
 
@@ -742,7 +734,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.ListVideoLayouts(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.ListVideoLayouts( Id!, linked).NoSync();
         }
     }
 
@@ -755,7 +747,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.SetVideoLayout(ElementId, layout, canvas, linked).NoSync();
+            await TelnyxWebRtcInterop.SetVideoLayout( Id!, layout, canvas, linked).NoSync();
         }
     }
 
@@ -768,7 +760,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.PlayMedia(ElementId, source, linked).NoSync();
+            await TelnyxWebRtcInterop.PlayMedia( Id!, source, linked).NoSync();
         }
     }
 
@@ -781,7 +773,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.StopMedia(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.StopMedia( Id!, linked).NoSync();
         }
     }
 
@@ -794,7 +786,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.StartRecord(ElementId, filename, linked).NoSync();
+            await TelnyxWebRtcInterop.StartRecord( Id!, filename, linked).NoSync();
         }
     }
 
@@ -807,7 +799,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.StopRecord(ElementId, linked).NoSync();
+            await TelnyxWebRtcInterop.StopRecord( Id!, linked).NoSync();
         }
     }
 
@@ -820,7 +812,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.SendChatMessage(ElementId, message, type, linked).NoSync();
+            await TelnyxWebRtcInterop.SendChatMessage( Id!, message, type, linked).NoSync();
         }
     }
 
@@ -833,7 +825,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Snapshot(ElementId, filename, linked).NoSync();
+            await TelnyxWebRtcInterop.Snapshot( Id!, filename, linked).NoSync();
         }
     }
 
@@ -846,7 +838,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.MuteMic(ElementId, participantId, linked).NoSync();
+            await TelnyxWebRtcInterop.MuteMic( Id!, participantId, linked).NoSync();
         }
     }
 
@@ -859,7 +851,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.MuteVideoParticipant(ElementId, participantId, linked).NoSync();
+            await TelnyxWebRtcInterop.MuteVideoParticipant( Id!, participantId, linked).NoSync();
         }
     }
 
@@ -872,7 +864,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Kick(ElementId, participantId, linked).NoSync();
+            await TelnyxWebRtcInterop.Kick( Id!, participantId, linked).NoSync();
         }
     }
 
@@ -885,7 +877,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.VolumeUp(ElementId, participantId, linked).NoSync();
+            await TelnyxWebRtcInterop.VolumeUp( Id!, participantId, linked).NoSync();
         }
     }
 
@@ -898,7 +890,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.VolumeDown(ElementId, participantId, linked).NoSync();
+            await TelnyxWebRtcInterop.VolumeDown( Id!, participantId, linked).NoSync();
         }
     }
 
@@ -911,7 +903,7 @@
 
         using (cts)
         {
-            return await TelnyxWebRtcInterop.GetCallStats(ElementId, linked).NoSync();
+            return await TelnyxWebRtcInterop.GetCallStats( Id!, linked).NoSync();
         }
     }
 

@@ -31,22 +31,23 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
             var useCdn = true;
 
             if (arr.Length > 0)
-                useCdn = (bool) arr[0];
+                useCdn = (bool)arr[0];
 
             if (useCdn)
             {
                 await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.22.17/lib/bundle.js", "TelnyxWebRTC",
-                                         integrity: "sha256-uiKtParibFFpEaHhD+X8rgPhdUAWgcDhHKXwTzqARbE=", cancellationToken: token)
-                                     .NoSync();
+                        integrity: "sha256-uiKtParibFFpEaHhD+X8rgPhdUAWgcDhHKXwTzqARbE=", cancellationToken: token)
+                    .NoSync();
             }
             else
             {
                 await _resourceLoader.LoadScriptAndWaitForVariable("_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtc.js", "TelnyxWebRTC",
-                                         cancellationToken: token)
-                                     .NoSync();
+                        cancellationToken: token)
+                    .NoSync();
             }
 
-            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token).NoSync();
+            await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token)
+                .NoSync();
 
             return new object();
         });
@@ -57,207 +58,211 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         return _scriptInitializer.Init(cancellationToken, useCdn);
     }
 
-    public async ValueTask Create(string elementId, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
+    public async ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
         CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken).NoSync();
+        await _scriptInitializer.Init(cancellationToken)
+            .NoSync();
         string? json = JsonUtil.Serialize(options);
 
-        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, elementId, json, dotNetObjectRef).NoSync();
+        await _jsRuntime.InvokeVoidAsync($"{_moduleName}.create", cancellationToken, id, json, dotNetObjectRef)
+            .NoSync();
     }
 
-    public ValueTask CreateObserver(string elementId, CancellationToken cancellationToken = default)
+    public ValueTask CreateObserver(string id, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.createObserver", cancellationToken, id);
     }
 
-    public ValueTask Call(string elementId, TelnyxCallOptions callOptions, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.call", cancellationToken, elementId, JsonUtil.Serialize(callOptions));
+    public ValueTask Call(string id, TelnyxCallOptions callOptions, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.call", cancellationToken, id, JsonUtil.Serialize(callOptions));
 
-    public ValueTask Answer(string elementId, TelnyxAnswerOptions? options = null, CancellationToken cancellationToken = default)
-    {
-        if (options != null)
-            return _jsRuntime.InvokeVoidAsync($"{_moduleName}.answer", cancellationToken, elementId, JsonUtil.Serialize(options));
-
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.answer", cancellationToken, elementId);
-    }
-
-    public ValueTask Hangup(string elementId, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default)
+    public ValueTask Answer(string id, TelnyxAnswerOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (options != null)
-            return _jsRuntime.InvokeVoidAsync($"{_moduleName}.hangup", cancellationToken, elementId, JsonUtil.Serialize(options));
+            return _jsRuntime.InvokeVoidAsync($"{_moduleName}.answer", cancellationToken, id, JsonUtil.Serialize(options));
 
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.hangup", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.answer", cancellationToken, id);
     }
 
-    public ValueTask MuteAudio(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteAudio", cancellationToken, elementId);
-
-    public ValueTask UnmuteAudio(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmuteAudio", cancellationToken, elementId);
-
-    public ValueTask ToggleAudioMute(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleAudioMute", cancellationToken, elementId);
-
-    public ValueTask MuteVideo(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteVideo", cancellationToken, elementId);
-
-    public ValueTask UnmuteVideo(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmuteVideo", cancellationToken, elementId);
-
-    public ValueTask ToggleVideoMute(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleVideoMute", cancellationToken, elementId);
-
-    public ValueTask Deaf(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.deaf", cancellationToken, elementId);
-
-    public ValueTask Undeaf(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.undeaf", cancellationToken, elementId);
-
-    public ValueTask ToggleDeaf(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleDeaf", cancellationToken, elementId);
-
-    public ValueTask Hold(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.hold", cancellationToken, elementId);
-
-    public ValueTask Unhold(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unhold", cancellationToken, elementId);
-
-    public ValueTask ToggleHold(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleHold", cancellationToken, elementId);
-
-    public ValueTask Dtmf(string elementId, string digit, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.dtmf", cancellationToken, elementId, digit);
-
-    public ValueTask Message(string elementId, string to, string body, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.message", cancellationToken, elementId, to, body);
-
-    public ValueTask SetAudioInDevice(string elementId, string deviceId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioInDevice", cancellationToken, elementId, deviceId);
-
-    public ValueTask SetVideoDevice(string elementId, string deviceId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setVideoDevice", cancellationToken, elementId, deviceId);
-
-    public ValueTask SetAudioOutDevice(string elementId, string deviceId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioOutDevice", cancellationToken, elementId, deviceId);
-
-    public ValueTask StartScreenShare(string elementId, TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default)
+    public ValueTask Hangup(string id, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (options != null)
-            return _jsRuntime.InvokeVoidAsync($"{_moduleName}.startScreenShare", cancellationToken, elementId, JsonUtil.Serialize(options));
+            return _jsRuntime.InvokeVoidAsync($"{_moduleName}.hangup", cancellationToken, id, JsonUtil.Serialize(options));
 
-        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.startScreenShare", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.hangup", cancellationToken, id);
     }
 
-    public ValueTask StopScreenShare(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.stopScreenShare", cancellationToken, elementId);
+    public ValueTask MuteAudio(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteAudio", cancellationToken, id);
 
-    public ValueTask SetAudioBandwidth(string elementId, int bps, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioBandwidth", cancellationToken, elementId, bps);
+    public ValueTask UnmuteAudio(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmuteAudio", cancellationToken, id);
 
-    public ValueTask SetVideoBandwidth(string elementId, int bps, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setVideoBandwidth", cancellationToken, elementId, bps);
+    public ValueTask ToggleAudioMute(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleAudioMute", cancellationToken, id);
 
-    public ValueTask<string> GetDevices(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getDevices", cancellationToken, elementId);
+    public ValueTask MuteVideo(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteVideo", cancellationToken, id);
 
-    public ValueTask<string> GetVideoDevices(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getVideoDevices", cancellationToken, elementId);
+    public ValueTask UnmuteVideo(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmuteVideo", cancellationToken, id);
 
-    public ValueTask<string> GetAudioInDevices(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getAudioInDevices", cancellationToken, elementId);
+    public ValueTask ToggleVideoMute(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleVideoMute", cancellationToken, id);
 
-    public ValueTask<string> GetAudioOutDevices(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getAudioOutDevices", cancellationToken, elementId);
+    public ValueTask Deaf(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.deaf", cancellationToken, id);
 
-    public ValueTask<bool> CheckPermissions(string elementId, bool audio = true, bool video = true, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<bool>($"{_moduleName}.checkPermissions", cancellationToken, elementId, audio, video);
+    public ValueTask Undeaf(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.undeaf", cancellationToken, id);
 
-    public ValueTask<bool> SetAudioSettings(string elementId, TelnyxAudioSettings settings, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<bool>($"{_moduleName}.setAudioSettings", cancellationToken, elementId, JsonUtil.Serialize(settings));
+    public ValueTask ToggleDeaf(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleDeaf", cancellationToken, id);
 
-    public ValueTask<bool> SetVideoSettings(string elementId, TelnyxVideoSettings settings, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<bool>($"{_moduleName}.setVideoSettings", cancellationToken, elementId, JsonUtil.Serialize(settings));
+    public ValueTask Hold(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.hold", cancellationToken, id);
 
-    public ValueTask EnableMicrophone(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.enableMicrophone", cancellationToken, elementId);
+    public ValueTask Unhold(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unhold", cancellationToken, id);
 
-    public ValueTask DisableMicrophone(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.disableMicrophone", cancellationToken, elementId);
+    public ValueTask ToggleHold(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleHold", cancellationToken, id);
 
-    public ValueTask EnableWebcam(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.enableWebcam", cancellationToken, elementId);
+    public ValueTask Dtmf(string id, string digit, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.dtmf", cancellationToken, id, digit);
 
-    public ValueTask DisableWebcam(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.disableWebcam", cancellationToken, elementId);
+    public ValueTask Message(string id, string to, string body, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.message", cancellationToken, id, to, body);
 
-    public ValueTask ToggleAudio(string elementId, bool enabled, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleAudio", cancellationToken, elementId, enabled);
+    public ValueTask SetAudioInDevice(string id, string deviceId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioInDevice", cancellationToken, id, deviceId);
 
-    public ValueTask ToggleVideo(string elementId, bool enabled, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleVideo", cancellationToken, elementId, enabled);
+    public ValueTask SetVideoDevice(string id, string deviceId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setVideoDevice", cancellationToken, id, deviceId);
 
-    public ValueTask Disconnect(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.disconnect", cancellationToken, elementId);
+    public ValueTask SetAudioOutDevice(string id, string deviceId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioOutDevice", cancellationToken, id, deviceId);
 
-    public ValueTask Reconnect(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.reconnect", cancellationToken, elementId);
+    public ValueTask StartScreenShare(string id, TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        if (options != null)
+            return _jsRuntime.InvokeVoidAsync($"{_moduleName}.startScreenShare", cancellationToken, id, JsonUtil.Serialize(options));
 
-    public ValueTask Unmount(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmount", cancellationToken, elementId);
+        return _jsRuntime.InvokeVoidAsync($"{_moduleName}.startScreenShare", cancellationToken, id);
+    }
 
-    public ValueTask Connect(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.connect", cancellationToken, elementId);
+    public ValueTask StopScreenShare(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.stopScreenShare", cancellationToken, id);
+
+    public ValueTask SetAudioBandwidth(string id, int bps, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioBandwidth", cancellationToken, id, bps);
+
+    public ValueTask SetVideoBandwidth(string id, int bps, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setVideoBandwidth", cancellationToken, id, bps);
+
+    public ValueTask<string> GetDevices(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getDevices", cancellationToken, id);
+
+    public ValueTask<string> GetVideoDevices(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getVideoDevices", cancellationToken, id);
+
+    public ValueTask<string> GetAudioInDevices(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getAudioInDevices", cancellationToken, id);
+
+    public ValueTask<string> GetAudioOutDevices(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<string>($"{_moduleName}.getAudioOutDevices", cancellationToken, id);
+
+    public ValueTask<bool> CheckPermissions(string id, bool audio = true, bool video = true, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<bool>($"{_moduleName}.checkPermissions", cancellationToken, id, audio, video);
+
+    public ValueTask<bool> SetAudioSettings(string id, TelnyxAudioSettings settings, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<bool>($"{_moduleName}.setAudioSettings", cancellationToken, id, JsonUtil.Serialize(settings));
+
+    public ValueTask<bool> SetVideoSettings(string id, TelnyxVideoSettings settings, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<bool>($"{_moduleName}.setVideoSettings", cancellationToken, id, JsonUtil.Serialize(settings));
+
+    public ValueTask EnableMicrophone(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.enableMicrophone", cancellationToken, id);
+
+    public ValueTask DisableMicrophone(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.disableMicrophone", cancellationToken, id);
+
+    public ValueTask EnableWebcam(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.enableWebcam", cancellationToken, id);
+
+    public ValueTask DisableWebcam(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.disableWebcam", cancellationToken, id);
+
+    public ValueTask ToggleAudio(string id, bool enabled, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleAudio", cancellationToken, id, enabled);
+
+    public ValueTask ToggleVideo(string id, bool enabled, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.toggleVideo", cancellationToken, id, enabled);
+
+    public ValueTask Disconnect(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.disconnect", cancellationToken, id);
+
+    public ValueTask Reconnect(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.reconnect", cancellationToken, id);
+
+    public ValueTask Unmount(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.unmount", cancellationToken, id);
+
+    public ValueTask Connect(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.connect", cancellationToken, id);
 
     // Conference control methods
-    public ValueTask ListVideoLayouts(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.listVideoLayouts", cancellationToken, elementId);
+    public ValueTask ListVideoLayouts(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.listVideoLayouts", cancellationToken, id);
 
-    public ValueTask SetVideoLayout(string elementId, string layout, string? canvas = null, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setVideoLayout", cancellationToken, elementId, layout, canvas);
+    public ValueTask SetVideoLayout(string id, string layout, string? canvas = null, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setVideoLayout", cancellationToken, id, layout, canvas);
 
-    public ValueTask PlayMedia(string elementId, string source, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.playMedia", cancellationToken, elementId, source);
+    public ValueTask PlayMedia(string id, string source, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.playMedia", cancellationToken, id, source);
 
-    public ValueTask StopMedia(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.stopMedia", cancellationToken, elementId);
+    public ValueTask StopMedia(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.stopMedia", cancellationToken, id);
 
-    public ValueTask StartRecord(string elementId, string filename, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.startRecord", cancellationToken, elementId, filename);
+    public ValueTask StartRecord(string id, string filename, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.startRecord", cancellationToken, id, filename);
 
-    public ValueTask StopRecord(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.stopRecord", cancellationToken, elementId);
+    public ValueTask StopRecord(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.stopRecord", cancellationToken, id);
 
-    public ValueTask SendChatMessage(string elementId, string message, string? type = null, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.sendChatMessage", cancellationToken, elementId, message, type);
+    public ValueTask SendChatMessage(string id, string message, string? type = null, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.sendChatMessage", cancellationToken, id, message, type);
 
-    public ValueTask Snapshot(string elementId, string filename, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.snapshot", cancellationToken, elementId, filename);
+    public ValueTask Snapshot(string id, string filename, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.snapshot", cancellationToken, id, filename);
 
-    public ValueTask MuteMic(string elementId, string participantId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteMic", cancellationToken, elementId, participantId);
+    public ValueTask MuteMic(string id, string participantId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteMic", cancellationToken, id, participantId);
 
-    public ValueTask MuteVideoParticipant(string elementId, string participantId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteVideoParticipant", cancellationToken, elementId, participantId);
+    public ValueTask MuteVideoParticipant(string id, string participantId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.muteVideoParticipant", cancellationToken, id, participantId);
 
-    public ValueTask Kick(string elementId, string participantId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.kick", cancellationToken, elementId, participantId);
+    public ValueTask Kick(string id, string participantId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.kick", cancellationToken, id, participantId);
 
-    public ValueTask VolumeUp(string elementId, string participantId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.volumeUp", cancellationToken, elementId, participantId);
+    public ValueTask VolumeUp(string id, string participantId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.volumeUp", cancellationToken, id, participantId);
 
-    public ValueTask VolumeDown(string elementId, string participantId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.volumeDown", cancellationToken, elementId, participantId);
+    public ValueTask VolumeDown(string id, string participantId, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.volumeDown", cancellationToken, id, participantId);
 
-    public ValueTask<string?> GetCallStats(string elementId, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getCallStats", cancellationToken, elementId);
+    public ValueTask<string?> GetCallStats(string id, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeAsync<string?>($"{_moduleName}.getCallStats", cancellationToken, id);
 
-    public ValueTask SetAudioVolume(string elementId, double volume, CancellationToken cancellationToken = default) =>
-        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioVolume", cancellationToken, elementId, volume);
+    public ValueTask SetAudioVolume(string id, double volume, CancellationToken cancellationToken = default) =>
+        _jsRuntime.InvokeVoidAsync($"{_moduleName}.setAudioVolume", cancellationToken, id, volume);
 
     public async ValueTask DisposeAsync()
     {
-        await _resourceLoader.DisposeModule(_module).NoSync();
-        await _scriptInitializer.DisposeAsync().NoSync();
+        await _resourceLoader.DisposeModule(_module)
+            .NoSync();
+        await _scriptInitializer.DisposeAsync()
+            .NoSync();
     }
 }
