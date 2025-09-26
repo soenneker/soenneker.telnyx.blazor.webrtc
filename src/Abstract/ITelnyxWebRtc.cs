@@ -4,7 +4,7 @@ using Soenneker.Telnyx.Blazor.WebRtc.Dtos;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark.Components.Core.Cancellable.Abstract;
+using Soenneker.Quark;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 
