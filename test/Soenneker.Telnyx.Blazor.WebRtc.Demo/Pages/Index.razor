@@ -44,14 +44,14 @@
 
                 <Row class="mt-4" >
                     <Column>
-                        <Button Color="Color.Primary" Clicked="Connect" >Connect</Button>
-                        <Button Color="Color.Success" Clicked="Call" >Call</Button>
-                        <Button Color="Color.Danger" Clicked="Hangup" >Hangup</Button>
-                        <Button Color="Color.Warning" Clicked="Answer" >Answer</Button>
-                        <Button Color="Color.Secondary" Clicked="Mute" >Mute</Button>
-                        <Button Color="Color.Secondary" Clicked="Unmute" >Unmute</Button>
-                        <Button Color="Color.Info" Clicked="Hold" >Hold</Button>
-                        <Button Color="Color.Info" Clicked="Disconnect" >Disconnect</Button>
+                        <Button Color="Color.Primary" OnClick="Connect" >Connect</Button>
+                        <Button Color="Color.Success" OnClick="Call" >Call</Button>
+                        <Button Color="Color.Danger" OnClick="Hangup" >Hangup</Button>
+                        <Button Color="Color.Warning" OnClick="Answer" >Answer</Button>
+                        <Button Color="Color.Secondary" OnClick="Mute" >Mute</Button>
+                        <Button Color="Color.Secondary" OnClick="Unmute" >Unmute</Button>
+                        <Button Color="Color.Info" OnClick="Hold" >Hold</Button>
+                        <Button Color="Color.Info" OnClick="Disconnect" >Disconnect</Button>
                     </Column>
                 </Row>
 
@@ -116,7 +116,7 @@
                 <h4 class="mb-0" style="color: #00bfae;" >Live Event Log</h4>
             </CardHeader>
             <CardBody>
-                <Button Color="Color.Light" Outline Class="mb-2" Clicked="ClearLog" >Clear Log</Button>
+                <Button Color="Color.Light" Outline Class="mb-2" OnClick="ClearLog" >Clear Log</Button>
                 <div style="max-height: 75vh; overflow-y: auto; font-family: 'Fira Mono', monospace; font-size: 0.95em;" >
                     @foreach (var entry in _logEntries.OrderByDescending(e => e.Timestamp))
                     {
