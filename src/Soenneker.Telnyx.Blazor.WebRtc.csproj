@@ -45,7 +45,7 @@
         <PackageReference Include="Intellenum" Version="2.0.1" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.426" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.3740" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="3.0.1508" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1514" />
         <PackageReference Include="Soenneker.Quark.Components.Core.Cancellable" Version="4.0.10" />
         <PackageReference Include="Soenneker.Extensions.CancellationTokens" Version="4.0.4" />
     </ItemGroup>
