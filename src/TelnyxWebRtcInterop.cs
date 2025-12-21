@@ -2,10 +2,10 @@
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.Telnyx.Blazor.WebRtc.Abstract;
-using Soenneker.Utils.AsyncSingleton;
 using Soenneker.Utils.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Asyncs.Initializers;
 using Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc;
@@ -16,7 +16,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     private readonly IJSRuntime _jsRuntime;
     private readonly IResourceLoader _resourceLoader;
 
-    private readonly AsyncSingleton _scriptInitializer;
+    private readonly AsyncInitializer<bool> _scriptInitializer;
 
     private const string _module = "Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.js";
     private const string _moduleName = "TelnyxWebRtcInterop";
@@ -26,13 +26,8 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncSingleton(async (token, arr) =>
+        _scriptInitializer = new AsyncInitializer<bool>(async (useCdn, token) =>
         {
-            var useCdn = true;
-
-            if (arr.Length > 0)
-                useCdn = (bool)arr[0];
-
             if (useCdn)
             {
                 await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.22.17/lib/bundle.js", "TelnyxWebRTC",
@@ -48,20 +43,18 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
             await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token)
                 .NoSync();
-
-            return new object();
         });
     }
 
     public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
     {
-        return _scriptInitializer.Init(cancellationToken, useCdn);
+        return _scriptInitializer.Init(useCdn, cancellationToken);
     }
 
     public async ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
         CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(cancellationToken)
+        await _scriptInitializer.Init(true, cancellationToken)
             .NoSync();
         string? json = JsonUtil.Serialize(options);
 
