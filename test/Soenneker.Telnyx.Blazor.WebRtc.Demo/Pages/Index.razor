@@ -3,6 +3,7 @@
 @using Soenneker.Telnyx.Blazor.WebRtc.Configuration
 @using Soenneker.Telnyx.Blazor.WebRtc.Dtos
 @using System.Text.Json
+@using Soenneker.Quark
 
 @inject ILogger<Index> Logger
 
@@ -160,8 +161,8 @@
         _logEntries.Add(new LogEntry
         {
             Type = type,
-            Message = message is string s ? s : JsonSerializer.Serialize(message, new JsonSerializerOptions {WriteIndented = true}),
-            Timestamp = DateTime.Now.ToString("HH:mm:ss.fff")
+            Message = message is string s ? s : JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true }),
+            Timestamp = DateTimeOffset.Now.ToString("HH:mm:ss.fff")
         });
         StateHasChanged();
     }
@@ -352,7 +353,7 @@
         try
         {
             using var doc = JsonDocument.Parse(rawJson);
-            pretty = JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions {WriteIndented = true});
+            pretty = JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
         }
         catch
         {

@@ -1,15 +1,16 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Web;
+﻿using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Serilog;
 using Serilog.Debugging;
-using Soenneker.Telnyx.Blazor.WebRtc.Registrars;
+using Soenneker.Quark;
 using Soenneker.Serilog.Sinks.Browser.Blazor.Registrars;
+using Soenneker.Telnyx.Blazor.WebRtc.Registrars;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Demo;
 
@@ -30,6 +31,26 @@ public class Program
             {
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             });
+
+            var theme = new Theme
+            {
+            };
+
+            var provider = new ThemeProvider();
+            provider.AddTheme(theme);
+
+            builder.Services.AddThemeProviderAsScoped(provider);
+
+            var quarkOptions = new QuarkOptions
+            {
+                Debug = true,
+                AutomaticBootstrapLoading = true,
+                AutomaticFontAwesomeLoading = true
+            };
+
+            builder.Services.AddQuarkOptionsAsScoped(quarkOptions);
+
+            builder.Services.AddQuarkSuiteAsScoped();
 
             builder.Services.AddTelnyxWebRtcInteropAsScoped();
 
