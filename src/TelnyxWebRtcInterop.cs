@@ -26,20 +26,20 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         _jsRuntime = jsRuntime;
         _resourceLoader = resourceLoader;
 
-        _scriptInitializer = new AsyncInitializer<bool>(Initialize);
+        _scriptInitializer = new AsyncInitializer<bool>(InitializeScripts);
     }
 
-    private async ValueTask Initialize(bool useCdn, CancellationToken token)
+    private async ValueTask InitializeScripts(bool useCdn, CancellationToken token)
     {
         if (useCdn)
         {
             await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.22.17/lib/bundle.js", "TelnyxWebRTC",
-                    integrity: "sha256-uiKtParibFFpEaHhD+X8rgPhdUAWgcDhHKXwTzqARbE=", cancellationToken: token);
+                integrity: "sha256-uiKtParibFFpEaHhD+X8rgPhdUAWgcDhHKXwTzqARbE=", cancellationToken: token);
         }
         else
         {
             await _resourceLoader.LoadScriptAndWaitForVariable("_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtc.js", "TelnyxWebRTC",
-                    cancellationToken: token);
+                cancellationToken: token);
         }
 
         await _resourceLoader.ImportModuleAndWaitUntilAvailable(_module, _moduleName, 100, token);
@@ -54,11 +54,11 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(true, cancellationToken)
-            .NoSync();
+                                .NoSync();
         string? json = JsonUtil.Serialize(options);
 
         await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.create", cancellationToken, id, json, dotNetObjectRef)
-            .NoSync();
+                        .NoSync();
     }
 
     public ValueTask CreateObserver(string id, CancellationToken cancellationToken = default)
