@@ -21,6 +21,7 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// <summary>
     /// Creates and registers a Telnyx WebRTC client instance with configuration and event callback support.
     /// </summary>
+    /// <param name="Id"></param>
     /// <param name="elementId">The DOM element identifier hosting the WebRTC client.</param>
     /// <param name="dotNetObjectRef">A .NET reference to the component receiving event callbacks.</param>
     /// <param name="options">Configuration options for the client.</param>

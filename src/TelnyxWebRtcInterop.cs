@@ -444,9 +444,9 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask PlayMedia(string id, string source, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var sourceToken);
 
-        using (source)
+        using (sourceToken)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.playMedia", linked, id, source);
     }
 

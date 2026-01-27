@@ -219,6 +219,7 @@ public interface ITelnyxWebRtc : ICoreCancellableElement
     /// Sends a DTMF digit (touch tone) to the remote party.
     /// </summary>
     /// <param name="digit">A valid DTMF character: 0–9, *, or #.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask Dtmf(string digit, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -245,6 +246,7 @@ public interface ITelnyxWebRtc : ICoreCancellableElement
     /// Initiates a screen sharing session using the browser's screen picker.
     /// </summary>
     /// <param name="options">Optional screen share constraints such as resolution or cursor behavior.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask StartScreenShare(TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -352,6 +354,7 @@ public interface ITelnyxWebRtc : ICoreCancellableElement
     /// </summary>
     /// <param name="layout">The name of the layout (e.g., "grid", "speaker").</param>
     /// <param name="canvas">Optional canvas ID to use as the video layout target.</param>
+    /// <param name="cancellationToken"></param>
     ValueTask SetVideoLayout(string layout, string? canvas = null, CancellationToken cancellationToken = default);
 
     /// <summary>
