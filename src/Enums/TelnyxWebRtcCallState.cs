@@ -1,11 +1,11 @@
-﻿using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Enums;
 
 /// <summary>
 /// Represents the lifecycle states of a Telnyx WebRTC call.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class TelnyxCallState
 {
     /// <summary>New call has been created in the client.</summary>

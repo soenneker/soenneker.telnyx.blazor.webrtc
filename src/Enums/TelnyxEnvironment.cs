@@ -1,4 +1,4 @@
-﻿using Intellenum;
+using Soenneker.Gen.EnumValues;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Enums;
 
@@ -6,7 +6,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Enums;
 /// Represents the Telnyx WebRTC client environment.
 /// Used to specify whether the client should connect to the development or production Telnyx environment.
 /// </summary>
-[Intellenum<string>]
+[EnumValue<string>]
 public sealed partial class TelnyxEnvironment
 {
     /// <summary>
