@@ -44,7 +44,6 @@ public class Program
             var quarkOptions = new QuarkOptions
             {
                 Debug = true,
-                AutomaticBootstrapLoading = true,
                 AutomaticFontAwesomeLoading = true
             };
 
