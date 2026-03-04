@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/.github/">
+    <File Path=".github/renovate.json" />
+  </Folder>
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/build-and-test.yml" />
+    <File Path=".github/workflows/publish-package.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Soenneker.Telnyx.Blazor.WebRtc.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Soenneker.Telnyx.Blazor.WebRtc.Demo/Soenneker.Telnyx.Blazor.WebRtc.Demo.csproj" />
+    <Project Path="test/Soenneker.Telnyx.Blazor.WebRtc.Tests/Soenneker.Telnyx.Blazor.WebRtc.Tests.csproj" />
+  </Folder>
+</Solution>
