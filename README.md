@@ -1,34 +1,35 @@
-﻿[![](https://img.shields.io/nuget/v/soenneker.telnyx.blazor.webrtc.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.telnyx.blazor.webrtc/)
+[![](https://img.shields.io/nuget/v/soenneker.telnyx.blazor.webrtc.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.telnyx.blazor.webrtc/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.telnyx.blazor.webrtc/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.telnyx.blazor.webrtc/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.telnyx.blazor.webrtc.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.telnyx.blazor.webrtc/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.telnyx.blazor.webrtc/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.telnyx.blazor.webrtc/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Telnyx.Blazor.WebRtc
 A Blazor WebRTC component library for Telnyx, enabling real-time communication capabilities in your Blazor applications.
 
 ## Key Features
 
-* ✅ **Real-time WebRTC Communication**
-  Seamless voice and video calling powered by Telnyx’s browser-based WebRTC SDK.
+* ? **Real-time WebRTC Communication**
+  Seamless voice and video calling powered by Telnyx�s browser-based WebRTC SDK.
 
-* ⚙️ **Automatic JS Module Bootstrapping**
+* ?? **Automatic JS Module Bootstrapping**
   Built-in JavaScript interop initialization with lazy loading and Blazor lifecycle integration.
 
-* 🎥 **High-Quality Audio & Video Calls**
+* ?? **High-Quality Audio & Video Calls**
   Support for two-way audio and video with full control over microphone and webcam devices.
 
-* 📞 **Advanced Call Management**
+* ?? **Advanced Call Management**
   Programmatic control over call lifecycle: initiate, answer, hangup, hold, resume, mute/unmute, deaf/undeaf, DTMF tones, and more.
 
-* 🎛 **Device Enumeration & Dynamic Selection**
+* ?? **Device Enumeration & Dynamic Selection**
   Enumerate and switch between available microphones, speakers, and cameras at runtime.
 
-* 📡 **Custom Headers & Signaling Options**
+* ?? **Custom Headers & Signaling Options**
   Pass custom SIP headers during call setup for advanced routing or metadata requirements.
 
-* 🌐 **ICE Server & TURN/STUN Configuration**
+* ?? **ICE Server & TURN/STUN Configuration**
   Fully configurable ICE server settings for NAT traversal and improved connectivity in restricted networks.
 
-* 📢 **Comprehensive Event Notifications**
+* ?? **Comprehensive Event Notifications**
   Capture and handle all Telnyx WebRTC events: connection, media stream, call state, device changes, stats reports, and more.
 
 ## Installation
