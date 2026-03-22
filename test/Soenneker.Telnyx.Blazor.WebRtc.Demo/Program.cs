@@ -43,8 +43,7 @@ public class Program
 
             var quarkOptions = new QuarkOptions
             {
-                Debug = true,
-                AutomaticFontAwesomeLoading = true
+                Debug = true
             };
 
             builder.Services.AddQuarkOptionsAsScoped(quarkOptions);
