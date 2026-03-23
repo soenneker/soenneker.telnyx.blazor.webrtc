@@ -22,7 +22,6 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     private readonly CancellationScope _cancellationScope = new();
 
     private const string _module = "Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.js";
-    private const string _moduleName = "TelnyxWebRtcInterop";
 
     public TelnyxWebRtcInterop(IJSRuntime jsRuntime, IResourceLoader resourceLoader)
     {
@@ -36,8 +35,8 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     {
         if (useCdn)
         {
-            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.22.17/lib/bundle.js", "TelnyxWebRTC",
-                integrity: "sha256-uiKtParibFFpEaHhD+X8rgPhdUAWgcDhHKXwTzqARbE=", cancellationToken: token);
+            await _resourceLoader.LoadScriptAndWaitForVariable("https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.25.25/lib/bundle.js", "TelnyxWebRTC",
+                integrity: "sha256-AUocXf/8wgVxmt1FxnklCHMSI9rDzmhRdBJyrVBHzr8=", cancellationToken: token);
         }
         else
         {
@@ -50,7 +49,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _scriptInitializer.Init(useCdn, linked);
@@ -59,7 +58,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     public async ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
         CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -74,7 +73,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask CreateObserver(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.createObserver", linked, id);
@@ -82,7 +81,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Call(string id, TelnyxCallOptions callOptions, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.call", linked, id, JsonUtil.Serialize(callOptions));
@@ -90,7 +89,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Answer(string id, TelnyxAnswerOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -104,7 +103,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Hangup(string id, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -118,7 +117,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask MuteAudio(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.muteAudio", linked, id);
@@ -126,7 +125,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask UnmuteAudio(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.unmuteAudio", linked, id);
@@ -134,7 +133,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask ToggleAudioMute(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.toggleAudioMute", linked, id);
@@ -142,7 +141,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask MuteVideo(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.muteVideo", linked, id);
@@ -150,7 +149,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask UnmuteVideo(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.unmuteVideo", linked, id);
@@ -158,7 +157,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask ToggleVideoMute(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.toggleVideoMute", linked, id);
@@ -166,7 +165,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Deaf(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.deaf", linked, id);
@@ -174,7 +173,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Undeaf(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.undeaf", linked, id);
@@ -182,7 +181,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask ToggleDeaf(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.toggleDeaf", linked, id);
@@ -190,7 +189,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Hold(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.hold", linked, id);
@@ -198,7 +197,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Unhold(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.unhold", linked, id);
@@ -206,7 +205,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask ToggleHold(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.toggleHold", linked, id);
@@ -214,7 +213,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Dtmf(string id, string digit, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.dtmf", linked, id, digit);
@@ -222,7 +221,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Message(string id, string to, string body, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.message", linked, id, to, body);
@@ -230,7 +229,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SetAudioInDevice(string id, string deviceId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.setAudioInDevice", linked, id, deviceId);
@@ -238,7 +237,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SetVideoDevice(string id, string deviceId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.setVideoDevice", linked, id, deviceId);
@@ -246,7 +245,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SetAudioOutDevice(string id, string deviceId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.setAudioOutDevice", linked, id, deviceId);
@@ -254,7 +253,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask StartScreenShare(string id, TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
         {
@@ -267,7 +266,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask StopScreenShare(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.stopScreenShare", linked, id);
@@ -275,7 +274,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SetAudioBandwidth(string id, int bps, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.setAudioBandwidth", linked, id, bps);
@@ -283,7 +282,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SetVideoBandwidth(string id, int bps, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.setVideoBandwidth", linked, id, bps);
@@ -291,7 +290,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<string> GetDevices(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<string>("TelnyxWebRtcInterop.getDevices", linked, id);
@@ -299,7 +298,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<string> GetVideoDevices(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<string>("TelnyxWebRtcInterop.getVideoDevices", linked, id);
@@ -307,7 +306,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<string> GetAudioInDevices(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<string>("TelnyxWebRtcInterop.getAudioInDevices", linked, id);
@@ -315,7 +314,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<string> GetAudioOutDevices(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<string>("TelnyxWebRtcInterop.getAudioOutDevices", linked, id);
@@ -323,7 +322,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<bool> CheckPermissions(string id, bool audio = true, bool video = true, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<bool>("TelnyxWebRtcInterop.checkPermissions", linked, id, audio, video);
@@ -331,7 +330,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<bool> SetAudioSettings(string id, TelnyxAudioSettings settings, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<bool>("TelnyxWebRtcInterop.setAudioSettings", linked, id, JsonUtil.Serialize(settings));
@@ -339,7 +338,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<bool> SetVideoSettings(string id, TelnyxVideoSettings settings, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<bool>("TelnyxWebRtcInterop.setVideoSettings", linked, id, JsonUtil.Serialize(settings));
@@ -347,7 +346,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask EnableMicrophone(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.enableMicrophone", linked, id);
@@ -355,7 +354,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask DisableMicrophone(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.disableMicrophone", linked, id);
@@ -363,7 +362,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask EnableWebcam(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.enableWebcam", linked, id);
@@ -371,7 +370,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask DisableWebcam(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.disableWebcam", linked, id);
@@ -379,7 +378,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask ToggleAudio(string id, bool enabled, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.toggleAudio", linked, id, enabled);
@@ -387,7 +386,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask ToggleVideo(string id, bool enabled, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.toggleVideo", linked, id, enabled);
@@ -395,7 +394,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Disconnect(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.disconnect", linked, id);
@@ -403,7 +402,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Reconnect(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.reconnect", linked, id);
@@ -411,7 +410,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Unmount(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.unmount", linked, id);
@@ -419,7 +418,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Connect(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.connect", linked, id);
@@ -428,7 +427,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     // Conference control methods
     public async ValueTask ListVideoLayouts(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.listVideoLayouts", linked, id);
@@ -436,7 +435,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SetVideoLayout(string id, string layout, string? canvas = null, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.setVideoLayout", linked, id, layout, canvas);
@@ -444,7 +443,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask PlayMedia(string id, string source, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var sourceToken);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? sourceToken);
 
         using (sourceToken)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.playMedia", linked, id, source);
@@ -452,7 +451,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask StopMedia(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.stopMedia", linked, id);
@@ -460,7 +459,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask StartRecord(string id, string filename, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.startRecord", linked, id, filename);
@@ -468,7 +467,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask StopRecord(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.stopRecord", linked, id);
@@ -476,7 +475,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SendChatMessage(string id, string message, string? type = null, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.sendChatMessage", linked, id, message, type);
@@ -484,7 +483,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Snapshot(string id, string filename, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.snapshot", linked, id, filename);
@@ -492,7 +491,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask MuteMic(string id, string participantId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.muteMic", linked, id, participantId);
@@ -500,7 +499,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask MuteVideoParticipant(string id, string participantId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.muteVideoParticipant", linked, id, participantId);
@@ -508,7 +507,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Kick(string id, string participantId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.kick", linked, id, participantId);
@@ -516,7 +515,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask VolumeUp(string id, string participantId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.volumeUp", linked, id, participantId);
@@ -524,7 +523,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask VolumeDown(string id, string participantId, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.volumeDown", linked, id, participantId);
@@ -532,7 +531,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask<string?> GetCallStats(string id, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             return await _jsRuntime.InvokeAsync<string?>("TelnyxWebRtcInterop.getCallStats", linked, id);
@@ -540,7 +539,7 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask SetAudioVolume(string id, double volume, CancellationToken cancellationToken = default)
     {
-        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
 
         using (source)
             await _jsRuntime.InvokeVoidAsync("TelnyxWebRtcInterop.setAudioVolume", linked, id, volume);

@@ -119,7 +119,7 @@
             <CardBody>
                 <Button Color="Color.Light" Outline Class="mb-2" OnClick="ClearLog" >Clear Log</Button>
                 <div style="max-height: 75vh; overflow-y: auto; font-family: 'Fira Mono', monospace; font-size: 0.95em;" >
-                    @foreach (var entry in _logEntries.OrderByDescending(e => e.Timestamp))
+                    @foreach (LogEntry entry in _logEntries.OrderByDescending(e => e.Timestamp))
                     {
                         <div style="margin-bottom: 1em;" >
                             <span style="font-size: 0.85em; color: #aaa;" >@entry.Timestamp: </span>
@@ -352,7 +352,7 @@
         string pretty;
         try
         {
-            using var doc = JsonDocument.Parse(rawJson);
+            using JsonDocument doc = JsonDocument.Parse(rawJson);
             pretty = JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
         }
         catch
