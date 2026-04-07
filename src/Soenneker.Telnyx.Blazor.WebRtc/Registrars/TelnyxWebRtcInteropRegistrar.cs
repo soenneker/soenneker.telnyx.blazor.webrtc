@@ -15,7 +15,8 @@ public static class TelnyxWebRtcInteropRegistrar
     /// </summary>
     public static IServiceCollection AddTelnyxWebRtcInteropAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped().TryAddScoped<ITelnyxWebRtcInterop, TelnyxWebRtcInterop>();
+        services.AddResourceLoaderAsScoped()
+                .TryAddScoped<ITelnyxWebRtcInterop, TelnyxWebRtcInterop>();
 
         return services;
     }
