@@ -21,8 +21,8 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     private readonly AsyncInitializer<bool> _scriptInitializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "/_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.js";
-    private const string _localScriptPath = "/_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtc.js";
+    private const string _modulePath = "_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.js";
+    private const string _localScriptPath = "_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtc.js";
     private const string _cdnScriptPath = "https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.25.25/lib/bundle.js";
     private const string _cdnScriptIntegrity = "sha256-AUocXf/8wgVxmt1FxnklCHMSI9rDzmhRdBJyrVBHzr8=";
 
