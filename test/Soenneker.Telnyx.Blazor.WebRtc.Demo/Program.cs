@@ -36,11 +36,6 @@ public class Program
             {
             };
 
-            var provider = new ThemeProvider();
-            provider.AddTheme(theme);
-
-            builder.Services.AddThemeProviderAsScoped(provider);
-
             var quarkOptions = new QuarkOptions
             {
                 Debug = true
