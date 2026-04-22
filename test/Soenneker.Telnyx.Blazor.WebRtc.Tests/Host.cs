@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Soenneker.Fixtures.Unit;
+using Soenneker.TestHosts.Unit;
 using Soenneker.Utils.Test;
 using Soenneker.Blazor.MockJsRuntime.Registrars;
 using Soenneker.Telnyx.Blazor.WebRtc.Registrars;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Tests;
 
-public sealed class Fixture : UnitFixture
+public sealed class Host : UnitTestHost
 {
-    public override System.Threading.Tasks.ValueTask InitializeAsync()
+    public override Task InitializeAsync()
     {
         SetupIoC(Services);
 

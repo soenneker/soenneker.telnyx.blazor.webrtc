@@ -1,20 +1,19 @@
-﻿using Soenneker.Telnyx.Blazor.WebRtc.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Telnyx.Blazor.WebRtc.Abstract;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Tests;
 
-[Collection("Collection")]
-public class TelnyxWebRtcInteropTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class TelnyxWebRtcInteropTests : HostedUnitTest
 {
     private readonly ITelnyxWebRtcInterop _blazorlibrary;
 
-    public TelnyxWebRtcInteropTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public TelnyxWebRtcInteropTests(Host host) : base(host)
     {
         _blazorlibrary = Resolve<ITelnyxWebRtcInterop>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
