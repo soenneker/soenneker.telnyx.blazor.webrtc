@@ -38,7 +38,7 @@ jobs:
         run: dotnet build test/Soenneker.Telnyx.Blazor.WebRtc.Demo/Soenneker.Telnyx.Blazor.WebRtc.Demo.csproj --configuration Release --no-restore --verbosity minimal
 
       - name: Test
-        run: dotnet test test/Soenneker.Telnyx.Blazor.WebRtc.Demo/Soenneker.Telnyx.Blazor.WebRtc.Demo.csproj --configuration Release --no-build --no-restore --verbosity minimal
+        run: dotnet test --project test/Soenneker.Telnyx.Blazor.WebRtc.Demo/Soenneker.Telnyx.Blazor.WebRtc.Demo.csproj --configuration Release --no-build --no-restore --verbosity minimal
 
       - name: Pack
         run: dotnet pack src/Soenneker.Telnyx.Blazor.WebRtc/Soenneker.Telnyx.Blazor.WebRtc.csproj --configuration Release --no-build --no-restore --output . --verbosity minimal
