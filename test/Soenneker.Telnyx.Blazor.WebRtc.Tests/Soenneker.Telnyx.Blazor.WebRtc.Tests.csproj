@@ -5,9 +5,6 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-        <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
 
     </PropertyGroup>
 
@@ -23,19 +20,12 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.316" />
-        <PackageReference Include="Soenneker.Tests.FixturedUnit" Version="4.0.2305" />
+        <PackageReference Include="Soenneker.Tests.HostedUnit" Version="4.0.14" />
         <PackageReference Include="Soenneker.Blazor.MockJsRuntime" Version="4.0.330" />
-        <PackageReference Include="xUnit.v3" Version="3.2.2" />
+        <PackageReference Include="TUnit" Version="1.37.36" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Telnyx.Blazor.WebRtc\Soenneker.Telnyx.Blazor.WebRtc.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="testconfig.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
 </Project>
