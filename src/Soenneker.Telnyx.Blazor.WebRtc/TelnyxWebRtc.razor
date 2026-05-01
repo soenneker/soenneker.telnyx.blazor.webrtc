@@ -13,10 +13,10 @@
 
 @inject ITelnyxWebRtcInterop TelnyxWebRtcInterop
 
-@inherits Soenneker.Quark.CoreCancellableElement
+@inherits Soenneker.Lepton.Suite.LeptonCancellableIdentifiableContentElement
 @implements ITelnyxWebRtc
 
-<div id="@Id" @attributes="Attributes" >
+<div @attributes="EffectiveAttributes" >
 
     @if (RenderHiddenAudio)
     {

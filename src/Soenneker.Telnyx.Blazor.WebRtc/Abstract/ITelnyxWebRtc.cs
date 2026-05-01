@@ -4,7 +4,7 @@ using Soenneker.Telnyx.Blazor.WebRtc.Dtos;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Soenneker.Quark;
+using Soenneker.Lepton.Suite.Abstract;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 
@@ -12,7 +12,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// Defines a complete contract for managing Telnyx WebRTC client operations within a Blazor WebAssembly component.
 /// Supports call lifecycle, media control, device handling, conferencing, and statistics.
 /// </summary>
-public interface ITelnyxWebRtc : ICoreCancellableElement
+public interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
 {
     bool RenderHiddenAudio { get; set; }
 
