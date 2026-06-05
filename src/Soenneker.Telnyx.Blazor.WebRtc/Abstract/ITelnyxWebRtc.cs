@@ -14,8 +14,14 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// </summary>
 public interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether render hidden audio.
+    /// </summary>
     bool RenderHiddenAudio { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether render video.
+    /// </summary>
     bool RenderVideo { get; set; }
 
     /// <summary>
@@ -93,6 +99,9 @@ public interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
     /// </summary>
     EventCallback<string> OnStatsUpdate { get; set; }
 
+    /// <summary>
+    /// Gets or sets on notification.
+    /// </summary>
     EventCallback<TelnyxNotification> OnNotification { get; set; }
 
     /// <summary>
@@ -125,6 +134,9 @@ public interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
     /// </summary>
     EventCallback OnDisconnected { get; set; }
 
+    /// <summary>
+    /// Gets or sets speaker volume changed.
+    /// </summary>
     EventCallback<double> SpeakerVolumeChanged { get; set; }
 
     /// <summary>

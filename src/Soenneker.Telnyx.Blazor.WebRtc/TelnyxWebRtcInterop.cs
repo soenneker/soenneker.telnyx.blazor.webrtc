@@ -274,6 +274,10 @@ public sealed class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     public ValueTask Connect(string id, CancellationToken cancellationToken = default)
         => Execute(linked => InvokeVoidAsync("connect", linked, id), cancellationToken);
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         await _moduleImportUtil.DisposeContentModule(_modulePath);

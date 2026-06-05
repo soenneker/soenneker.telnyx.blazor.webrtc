@@ -7,6 +7,9 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 /// </summary>
 public sealed class TelnyxClientOptions
 {
+    /// <summary>
+    /// Gets or sets init options.
+    /// </summary>
     [JsonPropertyName("initOptions")]
     public TelnyxClientInitOptions InitOptions { get; set; } = null!;
 
@@ -28,6 +31,9 @@ public sealed class TelnyxClientOptions
     [JsonPropertyName("reconnectAttempts")]
     public int ReconnectAttempts { get; set; } = 5;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether use cdn.
+    /// </summary>
     [JsonIgnore]
     public bool UseCdn { get; set; } = true;
 }
