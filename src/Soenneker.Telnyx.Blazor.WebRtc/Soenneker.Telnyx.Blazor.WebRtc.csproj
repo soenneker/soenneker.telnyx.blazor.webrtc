@@ -45,7 +45,7 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.62" />
-        <PackageReference Include="Soenneker.Gen.EnumValues" Version="4.0.37" />
+        <PackageReference Include="Soenneker.Gen.EnumValues" Version="4.0.38" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.452" />
         <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.3996" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1680" />
