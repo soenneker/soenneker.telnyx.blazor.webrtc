@@ -97,15 +97,6 @@
     public EventCallback<string> OnSocketError { get; set; }
 
     [Parameter]
-    public EventCallback OnReconnecting { get; set; }
-
-    [Parameter]
-    public EventCallback OnReconnected { get; set; }
-
-    [Parameter]
-    public EventCallback OnDisconnected { get; set; }
-
-    [Parameter]
     public double SpeakerVolume { get; set; } = 1.0;
 
     [Parameter]
@@ -146,6 +137,9 @@
     {
         if (firstRender)
         {
+            if (Options?.InitOptions is null)
+                throw new InvalidOperationException("TelnyxWebRtc Options and InitOptions must be set before the first render.");
+
             if (RenderVideo && Options.InitOptions.LocalElement is null)
                 Options.InitOptions.LocalElement = _localElementId;
 
@@ -181,13 +175,14 @@
 
     public async ValueTask Initialize(TelnyxClientOptions? options = null, CancellationToken cancellationToken = default)
     {
-        _initialized = true;
-
         if (options != null)
             Options = options;
 
-        if (Options == null)
-            throw new InvalidOperationException("TelnyxWebRtcOptions must be set");
+        if (Options?.InitOptions is null)
+            throw new InvalidOperationException("TelnyxWebRtc Options and InitOptions must be set.");
+
+        if (_initialized)
+            return;
 
         _dotNetReference = DotNetObjectReference.Create(this);
 
@@ -197,6 +192,7 @@
         {
             await TelnyxWebRtcInterop.Create( Id!, _dotNetReference, Options, linked).NoSync();
             await TelnyxWebRtcInterop.CreateObserver( Id!, linked).NoSync();
+            _initialized = true;
         }
     }
 
@@ -209,7 +205,8 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Call( Id!, callOptions, linked).NoSync();
+            await TelnyxWebRtcInterop.Call(Id!, callOptions, callOptions.LocalStream, callOptions.RemoteStream,
+                callOptions.LocalElementReference, callOptions.RemoteElementReference, linked).NoSync();
         }
     }
 
@@ -222,7 +219,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Answer( Id!, options, linked).NoSync();
+            await TelnyxWebRtcInterop.Answer(Id!, options, options?.LocalElementReference, options?.RemoteElementReference, linked).NoSync();
         }
     }
 
@@ -235,7 +232,7 @@
 
         using (cts)
         {
-            await TelnyxWebRtcInterop.Hangup( Id!, options, linked).NoSync();
+            await TelnyxWebRtcInterop.Hangup(Id!, options, options?.Execute, linked).NoSync();
         }
     }
 
@@ -724,176 +721,6 @@
         }
     }
 
-    // Conference control methods
-    public async ValueTask ListVideoLayouts(CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.ListVideoLayouts( Id!, linked).NoSync();
-        }
-    }
-
-    public async ValueTask SetVideoLayout(string layout, string? canvas = null, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.SetVideoLayout( Id!, layout, canvas, linked).NoSync();
-        }
-    }
-
-    public async ValueTask PlayMedia(string source, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.PlayMedia( Id!, source, linked).NoSync();
-        }
-    }
-
-    public async ValueTask StopMedia(CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.StopMedia( Id!, linked).NoSync();
-        }
-    }
-
-    public async ValueTask StartRecord(string filename, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.StartRecord( Id!, filename, linked).NoSync();
-        }
-    }
-
-    public async ValueTask StopRecord(CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.StopRecord( Id!, linked).NoSync();
-        }
-    }
-
-    public async ValueTask SendChatMessage(string message, string? type = null, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.SendChatMessage( Id!, message, type, linked).NoSync();
-        }
-    }
-
-    public async ValueTask Snapshot(string filename, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.Snapshot( Id!, filename, linked).NoSync();
-        }
-    }
-
-    public async ValueTask MuteMic(string participantId, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.MuteMic( Id!, participantId, linked).NoSync();
-        }
-    }
-
-    public async ValueTask MuteVideoParticipant(string participantId, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.MuteVideoParticipant( Id!, participantId, linked).NoSync();
-        }
-    }
-
-    public async ValueTask Kick(string participantId, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.Kick( Id!, participantId, linked).NoSync();
-        }
-    }
-
-    public async ValueTask VolumeUp(string participantId, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.VolumeUp( Id!, participantId, linked).NoSync();
-        }
-    }
-
-    public async ValueTask VolumeDown(string participantId, CancellationToken cancellationToken = default)
-    {
-        if (!_initialized)
-            throw new InvalidOperationException("WebRTC has not been initialized yet.");
-
-        CancellationToken linked = CancellationToken.Link(cancellationToken, out CancellationTokenSource? cts);
-
-        using (cts)
-        {
-            await TelnyxWebRtcInterop.VolumeDown( Id!, participantId, linked).NoSync();
-        }
-    }
-
     public async ValueTask<string?> GetCallStats(CancellationToken cancellationToken = default)
     {
         if (!_initialized)
@@ -924,19 +751,43 @@
                 await OnError.InvokeIfHasDelegate(jsonArgs).NoSync();
                 return;
 
+            case "warning":
+                await OnWarning.InvokeIfHasDelegate(jsonArgs).NoSync();
+                return;
+
+            case "mediaPermissionsRecoverySuccess":
+                await OnMediaPermissionsRecoverySuccess.InvokeIfHasDelegate().NoSync();
+                return;
+
+            case "mediaPermissionsRecoveryError":
+                await OnMediaPermissionsRecoveryError.InvokeIfHasDelegate(jsonArgs).NoSync();
+                return;
+
+            case "ai.conversation":
+                await OnAiConversationMessage.InvokeIfHasDelegate(jsonArgs).NoSync();
+                return;
+
             case "notification":
                 try
                 {
                     var notification = JsonUtil.Deserialize<TelnyxNotification>(jsonArgs);
 
-                    if (notification is not null)
-                        await OnNotification.InvokeIfHasDelegate(notification).NoSync();
+                    if (notification is null)
+                    {
+                        await OnError.InvokeIfHasDelegate("Telnyx returned an empty notification.").NoSync();
+                        return;
+                    }
+
+                    await OnNotification.InvokeIfHasDelegate(notification).NoSync();
 
                     switch (notification.Type)
                     {
                         case "callUpdate":
                         {
-                            TelnyxCallState? currentState = notification.Call.State;
+                            TelnyxCallState? currentState = notification.Call?.State;
+
+                            if (currentState is null)
+                                break;
 
                             /* ────── RESUME DETECTION ────── */
                             if (_prevCallState == TelnyxCallState.Held && currentState == TelnyxCallState.Active)
@@ -1005,16 +856,10 @@
                 await OnSocketError.InvokeIfHasDelegate(jsonArgs).NoSync();
                 return;
 
-            case "reconnecting":
-                await OnReconnecting.InvokeIfHasDelegate().NoSync();
-                return;
-
-            case "reconnected":
-                await OnReconnected.InvokeIfHasDelegate().NoSync();
-                return;
-
-            case "disconnected":
-                await OnDisconnected.InvokeIfHasDelegate().NoSync();
+            case "rtc.mediaError":
+            case "rtc.peerConnectionFailureError":
+            case "rtc.peerConnectionSignalingStateClosed":
+                await OnError.InvokeIfHasDelegate(jsonArgs).NoSync();
                 return;
 
             case "localStream":
@@ -1041,15 +886,31 @@
             case "rawSocketMessage":
                 await OnRawSocketMessage.InvokeIfHasDelegate(jsonArgs).NoSync();
                 return;
+
+            default:
+                await OnMessage.InvokeIfHasDelegate(jsonArgs).NoSync();
+                return;
         }
     }
 
 
     public override async ValueTask DisposeAsync()
     {
-        await base.DisposeAsync().NoSync();
+        if (_initialized && Id is not null)
+        {
+            try
+            {
+                await TelnyxWebRtcInterop.Unmount(Id, CancellationToken.None).NoSync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // The browser runtime is already gone.
+            }
+        }
 
         _dotNetReference?.Dispose();
+
+        await base.DisposeAsync().NoSync();
     }
 
 }

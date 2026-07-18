@@ -10,7 +10,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// Provides a comprehensive Blazor WebAssembly interop interface for controlling Telnyx's WebRTC JavaScript SDK.
 /// This interface exposes functionality for managing calls, media devices, screen sharing, bandwidth, and advanced participant control.
 /// </summary>
-public interface ITelnyxWebRtcInterop : IAsyncDisposable
+public partial interface ITelnyxWebRtcInterop : IAsyncDisposable
 {
     /// <summary>
     /// Initializes and loads the Telnyx WebRTC JavaScript module.
@@ -22,7 +22,6 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// Creates and registers a Telnyx WebRTC client instance with configuration and event callback support.
     /// </summary>
     /// <param name="Id"></param>
-    /// <param name="elementId">The DOM element identifier hosting the WebRTC client.</param>
     /// <param name="dotNetObjectRef">A .NET reference to the component receiving event callbacks.</param>
     /// <param name="options">Configuration options for the client.</param>
     /// <param name="cancellationToken"></param>
@@ -36,17 +35,19 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// <summary>
     /// Starts an outbound call with the provided call options.
     /// </summary>
-    ValueTask Call(string  Id, TelnyxCallOptions callOptions, CancellationToken cancellationToken = default);
+    ValueTask Call(string Id, TelnyxCallOptions callOptions, IJSObjectReference? localStream = null, IJSObjectReference? remoteStream = null,
+        IJSObjectReference? localElement = null, IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Answers an incoming call with optional answer parameters (e.g., video support).
     /// </summary>
-    ValueTask Answer(string  Id, TelnyxAnswerOptions? options = null, CancellationToken cancellationToken = default);
+    ValueTask Answer(string Id, TelnyxAnswerOptions? options = null, IJSObjectReference? localElement = null,
+        IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Hangs up the current call with optional signaling metadata.
     /// </summary>
-    ValueTask Hangup(string  Id, TelnyxHangupOptions? options = null, CancellationToken cancellationToken = default);
+    ValueTask Hangup(string Id, TelnyxHangupOptions? options = null, bool? execute = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Mutes the local user's microphone.
@@ -232,71 +233,6 @@ public interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// Fully disposes the WebRTC client for the given element.
     /// </summary>
     ValueTask Unmount(string  Id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Lists available video layout configurations.
-    /// </summary>
-    ValueTask ListVideoLayouts(string  Id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Sets the active video layout configuration.
-    /// </summary>
-    ValueTask SetVideoLayout(string  Id, string layout, string? canvas = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Begins playing a media file to the remote party.
-    /// </summary>
-    ValueTask PlayMedia(string  Id, string source, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Stops currently playing media.
-    /// </summary>
-    ValueTask StopMedia(string  Id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Starts recording the call to a specified filename.
-    /// </summary>
-    ValueTask StartRecord(string  Id, string filename, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Stops the current recording session.
-    /// </summary>
-    ValueTask StopRecord(string  Id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Sends a chat message to other call participants.
-    /// </summary>
-    ValueTask SendChatMessage(string  Id, string message, string? type = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Captures a snapshot from the video feed and stores it as a file.
-    /// </summary>
-    ValueTask Snapshot(string  Id, string filename, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Mutes the microphone of a specified participant.
-    /// </summary>
-    ValueTask MuteMic(string  Id, string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Mutes the video feed of a specified participant.
-    /// </summary>
-    ValueTask MuteVideoParticipant(string  Id, string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Kicks a participant from the current session.
-    /// </summary>
-    ValueTask Kick(string  Id, string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Increases the playback volume of a specific participant.
-    /// </summary>
-    ValueTask VolumeUp(string  Id, string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Decreases the playback volume of a specific participant.
-    /// </summary>
-    ValueTask VolumeDown(string  Id, string participantId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves runtime call statistics such as bitrate, jitter, packet loss, etc., as a JSON string.

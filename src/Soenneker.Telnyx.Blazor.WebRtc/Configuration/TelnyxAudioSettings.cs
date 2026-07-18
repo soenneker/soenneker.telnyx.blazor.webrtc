@@ -23,17 +23,29 @@ public sealed class TelnyxAudioSettings
     /// Indicates whether echo cancellation is enabled for the audio input.
     /// </summary>
     [JsonPropertyName("echoCancellation")]
-    public bool? EchoCancellation { get; set; }
+    public object? EchoCancellation { get; set; }
 
     /// <summary>
     /// Indicates whether noise suppression is enabled for the audio input.
     /// </summary>
     [JsonPropertyName("noiseSuppression")]
-    public bool? NoiseSuppression { get; set; }
+    public object? NoiseSuppression { get; set; }
 
     /// <summary>
     /// Indicates whether automatic gain control is enabled for the audio input.
     /// </summary>
     [JsonPropertyName("autoGainControl")]
-    public bool? AutoGainControl { get; set; }
+    public object? AutoGainControl { get; set; }
+
+    [JsonPropertyName("channelCount")] public object? ChannelCount { get; set; }
+    [JsonPropertyName("deviceId")] public object? DeviceId { get; set; }
+    [JsonPropertyName("groupId")] public object? GroupId { get; set; }
+    [JsonPropertyName("latency")] public object? Latency { get; set; }
+    [JsonPropertyName("sampleRate")] public object? SampleRate { get; set; }
+    [JsonPropertyName("sampleSize")] public object? SampleSize { get; set; }
+    [JsonPropertyName("suppressLocalAudioPlayback")] public object? SuppressLocalAudioPlayback { get; set; }
+    [JsonPropertyName("voiceIsolation")] public object? VoiceIsolation { get; set; }
+
+    [JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, object>? AdditionalConstraints { get; set; }
 }

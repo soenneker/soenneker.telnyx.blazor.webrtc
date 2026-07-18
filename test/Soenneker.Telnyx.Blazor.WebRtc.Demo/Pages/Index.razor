@@ -35,9 +35,6 @@
                                   OnSocketOpen="OnSocketOpen"
                                   OnSocketClose="OnSocketClose"
                                   OnSocketError="OnSocketError"
-                                  OnReconnecting="OnReconnecting"
-                                  OnReconnected="OnReconnected"
-                                  OnDisconnected="OnDisconnected"
                                   SpeakerVolumeChanged="OnSpeakerVolumeChanged"
                                   OnReady="OnReady"
                                   OnRawSocketMessage="OnRawSocketMessage" />
@@ -296,24 +293,6 @@
     private Task OnSocketError(string msg)
     {
         AddLog("Socket", $"Socket error: {msg}");
-        return Task.CompletedTask;
-    }
-
-    private Task OnReconnecting()
-    {
-        AddLog("Socket", "Reconnecting...");
-        return Task.CompletedTask;
-    }
-
-    private Task OnReconnected()
-    {
-        AddLog("Socket", "Reconnected");
-        return Task.CompletedTask;
-    }
-
-    private Task OnDisconnected()
-    {
-        AddLog("Socket", "Disconnected");
         return Task.CompletedTask;
     }
 

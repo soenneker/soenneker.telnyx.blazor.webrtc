@@ -9,6 +9,12 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 public sealed class TelnyxCallOptions
 {
     /// <summary>
+    /// Optional caller-supplied call identifier.
+    /// </summary>
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    /// <summary>
     /// The number to call. Required for outbound calls.
     /// </summary>
     [JsonPropertyName("destinationNumber")]
@@ -42,13 +48,25 @@ public sealed class TelnyxCallOptions
     /// Enable audio in the call (defaults to true).
     /// </summary>
     [JsonPropertyName("audio")]
-    public bool? Audio { get; set; } = true;
+    public object? Audio { get; set; } = true;
 
     /// <summary>
     /// Enable video in the call (defaults to false).
     /// </summary>
     [JsonPropertyName("video")]
-    public bool? Video { get; set; } = false;
+    public object? Video { get; set; } = false;
+
+    /// <summary>
+    /// Browser-native local media stream. Passed as a JS object reference rather than serialized as JSON.
+    /// </summary>
+    [JsonIgnore]
+    public Microsoft.JSInterop.IJSObjectReference? LocalStream { get; set; }
+
+    /// <summary>
+    /// Browser-native remote media stream. Passed as a JS object reference rather than serialized as JSON.
+    /// </summary>
+    [JsonIgnore]
+    public Microsoft.JSInterop.IJSObjectReference? RemoteStream { get; set; }
 
     /// <summary>
     /// Enable stereo audio transmission.
@@ -74,11 +92,17 @@ public sealed class TelnyxCallOptions
     [JsonPropertyName("localElement")]
     public object? LocalElement { get; set; }
 
+    [JsonIgnore]
+    public Microsoft.JSInterop.IJSObjectReference? LocalElementReference { get; set; }
+
     /// <summary>
     /// Remote video/audio element or element ID to render remote media.
     /// </summary>
     [JsonPropertyName("remoteElement")]
     public object? RemoteElement { get; set; }
+
+    [JsonIgnore]
+    public Microsoft.JSInterop.IJSObjectReference? RemoteElementReference { get; set; }
 
     /// <summary>
     /// Selected microphone device ID.
@@ -109,6 +133,12 @@ public sealed class TelnyxCallOptions
     /// </summary>
     [JsonPropertyName("speakerId")]
     public string? SpeakerId { get; set; }
+
+    /// <summary>
+    /// Custom ICE servers for this call.
+    /// </summary>
+    [JsonPropertyName("iceServers")]
+    public List<TelnyxIceServer>? IceServers { get; set; }
 
     /// <summary>
     /// Enable or disable negotiation for audio streams.
@@ -205,6 +235,54 @@ public sealed class TelnyxCallOptions
     /// </summary>
     [JsonPropertyName("forceRelayCandidate")]
     public bool? ForceRelayCandidate { get; set; }
+
+    /// <summary>
+    /// Enables trickle ICE candidate signaling.
+    /// </summary>
+    [JsonPropertyName("trickleIce")]
+    public bool? TrickleIce { get; set; }
+
+    /// <summary>
+    /// Keeps the peer connection alive while the signaling socket reconnects.
+    /// </summary>
+    [JsonPropertyName("keepConnectionAliveOnSocketClose")]
+    public bool? KeepConnectionAliveOnSocketClose { get; set; }
+
+    /// <summary>
+    /// Starts the call with its local microphone muted.
+    /// </summary>
+    [JsonPropertyName("mutedMicOnStart")]
+    public bool? MutedMicOnStart { get; set; }
+
+    /// <summary>
+    /// Negotiates an incoming audio track without sending local audio.
+    /// </summary>
+    [JsonPropertyName("receiveOnlyAudio")]
+    public bool? ReceiveOnlyAudio { get; set; }
+
+    /// <summary>
+    /// Suppresses call-level SDK notifications.
+    /// </summary>
+    [JsonPropertyName("skipNotifications")]
+    public bool? SkipNotifications { get; set; }
+
+    /// <summary>
+    /// Ringtone file used for this call.
+    /// </summary>
+    [JsonPropertyName("ringtoneFile")]
+    public string? RingtoneFile { get; set; }
+
+    /// <summary>
+    /// Ringback file used for this call.
+    /// </summary>
+    [JsonPropertyName("ringbackFile")]
+    public string? RingbackFile { get; set; }
+
+    /// <summary>
+    /// Identifier of the call that this call recovered.
+    /// </summary>
+    [JsonPropertyName("recoveredCallId")]
+    public string? RecoveredCallId { get; set; }
 
     /// <summary>
     /// Base64 encoded client state for correlating events with the call.

@@ -18,4 +18,16 @@ public sealed class TelnyxAnonymousLoginOptions
     /// </summary>
     [JsonPropertyName("target_type")]
     public string? TargetType { get; set; }
+
+    /// <summary>
+    /// Optional version identifier for the anonymous target.
+    /// </summary>
+    [JsonPropertyName("target_version_id")]
+    public string? TargetVersionId { get; set; }
+
+    /// <summary>
+    /// Optional target-specific parameters.
+    /// </summary>
+    [JsonPropertyName("target_params")]
+    public System.Collections.Generic.Dictionary<string, object>? TargetParams { get; set; }
 }

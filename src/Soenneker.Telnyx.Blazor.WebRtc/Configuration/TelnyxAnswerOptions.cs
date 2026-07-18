@@ -17,18 +17,23 @@ public sealed class TelnyxAnswerOptions
     /// An optional array of custom SIP headers to include in the answer request.
     /// </summary>
     [JsonPropertyName("customHeaders")]
-    public string[]? CustomHeaders { get; set; }
+    public TelnyxCustomHeader[]? CustomHeaders { get; set; }
 
     /// <summary>
-    /// An optional array of preferred media codecs to use during the call.
-    /// The format and type of each object depends on the codec negotiation logic.
+    /// DOM element ID used to render local media for this call.
     /// </summary>
-    [JsonPropertyName("preferredCodecs")]
-    public object[]? PreferredCodecs { get; set; }
+    [JsonPropertyName("localElement")]
+    public string? LocalElement { get; set; }
 
     /// <summary>
-    /// Base64 encoded client state for correlating events with the call.
+    /// DOM element ID used to render remote media for this call.
     /// </summary>
-    [JsonPropertyName("clientState")]
-    public string? ClientState { get; set; }
+    [JsonPropertyName("remoteElement")]
+    public string? RemoteElement { get; set; }
+
+    [JsonIgnore]
+    public Microsoft.JSInterop.IJSObjectReference? LocalElementReference { get; set; }
+
+    [JsonIgnore]
+    public Microsoft.JSInterop.IJSObjectReference? RemoteElementReference { get; set; }
 }

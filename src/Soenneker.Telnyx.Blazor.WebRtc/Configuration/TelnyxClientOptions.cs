@@ -20,12 +20,6 @@ public sealed class TelnyxClientOptions
     public bool? AutoReconnect { get; set; }
 
     /// <summary>
-    /// Delay in milliseconds between reconnection attempts.
-    /// </summary>
-    [JsonPropertyName("reconnectDelay")]
-    public int ReconnectDelay { get; set; } = 2000;
-
-    /// <summary>
     /// Maximum number of reconnection attempts.
     /// </summary>
     [JsonPropertyName("reconnectAttempts")]

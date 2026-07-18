@@ -35,6 +35,12 @@ public sealed class TelnyxClientInitOptions
     [JsonPropertyName("login_token")]
     public string? LoginToken { get; set; }
 
+    [JsonPropertyName("project")]
+    public string? Project { get; set; }
+
+    [JsonPropertyName("token")]
+    public string? Token { get; set; }
+
     /// <summary>
     /// Anonymous login options if not using authentication credentials.
     /// </summary>
@@ -62,6 +68,12 @@ public sealed class TelnyxClientInitOptions
     public string? Region { get; set; }
 
     /// <summary>
+    /// Requests push notifications while the client is active.
+    /// </summary>
+    [JsonPropertyName("pushWhenActive")]
+    public bool? PushWhenActive { get; set; }
+
+    /// <summary>
     /// Whether the client should attempt to reconnect after being disconnected.
     /// </summary>
     [JsonPropertyName("autoReconnect")]
@@ -74,6 +86,9 @@ public sealed class TelnyxClientInitOptions
     /// </summary>
     [JsonPropertyName("iceServers")]
     public List<TelnyxIceServer>? IceServers { get; set; }
+
+    [JsonPropertyName("video")]
+    public bool? Video { get; set; }
 
     /// <summary>
     /// Enable debug logging.
@@ -88,6 +103,18 @@ public sealed class TelnyxClientInitOptions
     public string? DebugOutput { get; set; }
 
     /// <summary>
+    /// Minimum SDK log level: "debug", "info", "warn", or "error".
+    /// </summary>
+    [JsonPropertyName("debugLogLevel")]
+    public string? DebugLogLevel { get; set; }
+
+    /// <summary>
+    /// Maximum number of SDK log entries retained in memory.
+    /// </summary>
+    [JsonPropertyName("debugLogMaxEntries")]
+    public int? DebugLogMaxEntries { get; set; }
+
+    /// <summary>
     /// Enables prefetching ICE candidates before offer creation.
     /// </summary>
     [JsonPropertyName("prefetchIceCandidates")]
@@ -98,6 +125,126 @@ public sealed class TelnyxClientInitOptions
     /// </summary>
     [JsonPropertyName("forceRelayCandidate")]
     public bool? ForceRelayCandidate { get; set; }
+
+    /// <summary>
+    /// Enables trickle ICE candidate signaling.
+    /// </summary>
+    [JsonPropertyName("trickleIce")]
+    public bool? TrickleIce { get; set; }
+
+    /// <summary>
+    /// Keeps active peer connections alive while the signaling socket reconnects.
+    /// </summary>
+    [JsonPropertyName("keepConnectionAliveOnSocketClose")]
+    public bool? KeepConnectionAliveOnSocketClose { get; set; }
+
+    /// <summary>
+    /// Hangs up active calls when the page receives the browser beforeunload event.
+    /// </summary>
+    [JsonPropertyName("hangupOnBeforeUnload")]
+    public bool? HangupOnBeforeUnload { get; set; }
+
+    /// <summary>
+    /// Starts calls with the microphone muted.
+    /// </summary>
+    [JsonPropertyName("mutedMicOnStart")]
+    public bool? MutedMicOnStart { get; set; }
+
+    /// <summary>
+    /// Maximum number of automatic signaling reconnect attempts.
+    /// </summary>
+    [JsonPropertyName("maxReconnectAttempts")]
+    public int? MaxReconnectAttempts { get; set; }
+
+    /// <summary>
+    /// Enables Telnyx call-report collection.
+    /// </summary>
+    [JsonPropertyName("enableCallReports")]
+    public bool? EnableCallReports { get; set; }
+
+    /// <summary>
+    /// Interval in milliseconds between call-report samples.
+    /// </summary>
+    [JsonPropertyName("callReportInterval")]
+    public int? CallReportInterval { get; set; }
+
+    /// <summary>
+    /// Interval in milliseconds between intermediate call-report flushes.
+    /// </summary>
+    [JsonPropertyName("callReportFlushInterval")]
+    public int? CallReportFlushInterval { get; set; }
+
+    /// <summary>
+    /// Enables client-side call recording collection.
+    /// </summary>
+    [JsonPropertyName("enableCallRecording")]
+    public bool? EnableCallRecording { get; set; }
+
+    /// <summary>
+    /// Recording upload flush interval in milliseconds.
+    /// </summary>
+    [JsonPropertyName("callRecordingFlushIntervalMs")]
+    public int? CallRecordingFlushIntervalMs { get; set; }
+
+    /// <summary>
+    /// Maximum buffered recording size in bytes.
+    /// </summary>
+    [JsonPropertyName("callRecordingMaxBufferBytes")]
+    public int? CallRecordingMaxBufferBytes { get; set; }
+
+    /// <summary>
+    /// Recording sample rate in hertz.
+    /// </summary>
+    [JsonPropertyName("callRecordingSampleRate")]
+    public int? CallRecordingSampleRate { get; set; }
+
+    /// <summary>
+    /// Recording tracks to collect. Supported values are "local" and "remote".
+    /// </summary>
+    [JsonPropertyName("callRecordingTracks")]
+    public List<string>? CallRecordingTracks { get; set; }
+
+    /// <summary>
+    /// Endpoint used for call-recording uploads.
+    /// </summary>
+    [JsonPropertyName("callRecordingEndpoint")]
+    public string? CallRecordingEndpoint { get; set; }
+
+    /// <summary>
+    /// Uses the Telnyx canary RTC server.
+    /// </summary>
+    [JsonPropertyName("useCanaryRtcServer")]
+    public bool? UseCanaryRtcServer { get; set; }
+
+    /// <summary>
+    /// Skips reuse of the most recent voice SDK server identifier.
+    /// </summary>
+    [JsonPropertyName("skipLastVoiceSdkId")]
+    public bool? SkipLastVoiceSdkId { get; set; }
+
+    /// <summary>
+    /// Skips trailing signaling behavior when supported by the server.
+    /// </summary>
+    [JsonPropertyName("skipTrailing")]
+    public bool? SkipTrailing { get; set; }
+
+    /// <summary>
+    /// Overrides the RTC server IP address.
+    /// </summary>
+    [JsonPropertyName("rtcIp")]
+    public string? RtcIp { get; set; }
+
+    /// <summary>
+    /// Overrides the RTC server port.
+    /// </summary>
+    [JsonPropertyName("rtcPort")]
+    public int? RtcPort { get; set; }
+
+    /// <summary>
+    /// Controls automatic media-permission recovery.
+    /// </summary>
+    [JsonPropertyName("mediaPermissionsRecovery")]
+    public TelnyxMediaPermissionsRecoveryOptions? MediaPermissionsRecovery { get; set; }
 
     // ----- Media Elements -----
 

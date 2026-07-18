@@ -24,4 +24,8 @@ public sealed class TelnyxIceServer
     /// </summary>
     [JsonPropertyName("credential")]
     public string? Credential { get; set; }
+
+    /// <summary>Credential mechanism, when supported by the browser (for example <c>password</c>).</summary>
+    [JsonPropertyName("credentialType")]
+    public string? CredentialType { get; set; }
 }

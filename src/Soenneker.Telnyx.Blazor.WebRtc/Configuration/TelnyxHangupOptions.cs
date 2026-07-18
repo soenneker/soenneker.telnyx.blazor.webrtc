@@ -23,7 +23,7 @@ public sealed class TelnyxHangupOptions
     /// The SIP status code associated with the hangup, if applicable.
     /// </summary>
     [JsonPropertyName("sipCode")]
-    public string? SipCode { get; set; }
+    public int? SipCode { get; set; }
 
     /// <summary>
     /// A textual reason provided in the SIP signaling for the hangup.
@@ -34,7 +34,7 @@ public sealed class TelnyxHangupOptions
     /// <summary>
     /// The SIP Call-ID header value associated with the session being terminated.
     /// </summary>
-    [JsonPropertyName("sipCallId")]
+    [JsonPropertyName("sip_call_id")]
     public string? SipCallId { get; set; }
 
     /// <summary>
@@ -42,4 +42,13 @@ public sealed class TelnyxHangupOptions
     /// </summary>
     [JsonPropertyName("dialogParams")]
     public object? DialogParams { get; set; }
+
+    [JsonPropertyName("isRecovering")]
+    public bool? IsRecovering { get; set; }
+
+    [JsonPropertyName("initiator")]
+    public string? Initiator { get; set; }
+
+    [JsonIgnore]
+    public bool? Execute { get; set; }
 }

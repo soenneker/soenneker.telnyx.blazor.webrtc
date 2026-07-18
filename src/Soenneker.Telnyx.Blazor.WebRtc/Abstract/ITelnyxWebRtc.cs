@@ -12,7 +12,7 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// Defines a complete contract for managing Telnyx WebRTC client operations within a Blazor WebAssembly component.
 /// Supports call lifecycle, media control, device handling, conferencing, and statistics.
 /// </summary>
-public interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
+public partial interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
 {
     /// <summary>
     /// Gets or sets a value indicating whether render hidden audio.
@@ -118,21 +118,6 @@ public interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
     /// Raised when a WebSocket error occurs.
     /// </summary>
     EventCallback<string> OnSocketError { get; set; }
-
-    /// <summary>
-    /// Raised when the client is attempting to reconnect.
-    /// </summary>
-    EventCallback OnReconnecting { get; set; }
-
-    /// <summary>
-    /// Raised when the client successfully reconnects.
-    /// </summary>
-    EventCallback OnReconnected { get; set; }
-
-    /// <summary>
-    /// Raised when the client becomes disconnected.
-    /// </summary>
-    EventCallback OnDisconnected { get; set; }
 
     /// <summary>
     /// Gets or sets speaker volume changed.
@@ -355,74 +340,6 @@ public interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
     /// Explicitly connects the Telnyx WebRTC client to the signaling server.
     /// </summary>
     ValueTask Connect(CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Lists all available conference video layouts (grid, speaker view, etc.).
-    /// </summary>
-    ValueTask ListVideoLayouts(CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Sets the video layout for the current conference session.
-    /// </summary>
-    /// <param name="layout">The name of the layout (e.g., "grid", "speaker").</param>
-    /// <param name="canvas">Optional canvas ID to use as the video layout target.</param>
-    /// <param name="cancellationToken"></param>
-    ValueTask SetVideoLayout(string layout, string? canvas = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Plays a media file (e.g., audio clip) into the call.
-    /// </summary>
-    ValueTask PlayMedia(string source, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Stops media playback started with <see cref="PlayMedia"/>.
-    /// </summary>
-    ValueTask StopMedia(CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Starts recording the current call and saves the output to the given filename.
-    /// </summary>
-    ValueTask StartRecord(string filename, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Stops an active call recording.
-    /// </summary>
-    ValueTask StopRecord(CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Sends a message to all chat participants in the current session.
-    /// </summary>
-    ValueTask SendChatMessage(string message, string? type = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Captures a still image from the current video stream and saves it to a file.
-    /// </summary>
-    ValueTask Snapshot(string filename, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Mutes the microphone of a specific participant in a conference.
-    /// </summary>
-    ValueTask MuteMic(string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Mutes the video stream of a specific participant in a conference.
-    /// </summary>
-    ValueTask MuteVideoParticipant(string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Removes a participant from a Telnyx conference room.
-    /// </summary>
-    ValueTask Kick(string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Increases the playback volume of a specific participant.
-    /// </summary>
-    ValueTask VolumeUp(string participantId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Decreases the playback volume of a specific participant.
-    /// </summary>
-    ValueTask VolumeDown(string participantId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves the current statistics (latency, jitter, bandwidth) for the ongoing call.
