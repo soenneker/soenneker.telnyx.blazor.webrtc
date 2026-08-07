@@ -7,8 +7,8 @@
 
 @inject ILogger<Index> Logger
 
-<Row Class="mt-4" >
-    <Column md="8" >
+<div class="row mt-4">
+    <div class="col-md-8">
         <Card>
             <CardHeader>
                 <h2 class="mb-0" >Telnyx WebRTC Professional Demo</h2>
@@ -40,8 +40,8 @@
                                   OnRawSocketMessage="OnRawSocketMessage" />
                 }
 
-                <Row class="mt-4" >
-                    <Column>
+                <div class="row mt-4">
+                    <div class="col">
                         <Button Color="Color.Primary" OnClick="Connect" >Connect</Button>
                         <Button Color="Color.Success" OnClick="Call" >Call</Button>
                         <Button Color="Color.Danger" OnClick="Hangup" >Hangup</Button>
@@ -50,11 +50,11 @@
                         <Button Color="Color.Secondary" OnClick="Unmute" >Unmute</Button>
                         <Button Color="Color.Info" OnClick="Hold" >Hold</Button>
                         <Button Color="Color.Info" OnClick="Disconnect" >Disconnect</Button>
-                    </Column>
-                </Row>
+                    </div>
+                </div>
 
-                <Row class="mt-4" >
-                    <Column>
+                <div class="row mt-4">
+                    <div class="col">
                         <h5>Current Call State</h5>
                         @if (_currentCall is not null)
                         {
@@ -70,7 +70,7 @@
                                         <td>CallId</td><td>@_currentCall.CallId</td>
                                     </tr>
                                     <tr>
-                                        <td>State</td><td>@_currentCall.State</td>
+                                        <td>State</td><td>@(_currentCall.State?.ToString())</td>
                                     </tr>
                                     <tr>
                                         <td>Direction</td><td>@_currentCall.Direction</td>
@@ -103,12 +103,12 @@
                         {
                             <span class="text-muted" >No active call</span>
                         }
-                    </Column>
-                </Row>
+                    </div>
+                </div>
             </CardBody>
         </Card>
-    </Column>
-    <Column md="4" >
+    </div>
+    <div class="col-md-4">
         <Card Style="height: 90vh; overflow-y: auto; background: #181c20; color: #fff; border-radius: 1rem; box-shadow: 0 0 24px #0002;" >
             <CardHeader Style="background: #23272b; border-top-left-radius: 1rem; border-top-right-radius: 1rem;" >
                 <h4 class="mb-0" style="color: #00bfae;" >Live Event Log</h4>
@@ -127,8 +127,8 @@
                 </div>
             </CardBody>
         </Card>
-    </Column>
-</Row>
+    </div>
+</div>
 
 @code {
     TelnyxWebRtc _telnyxWebRtc = null!;
