@@ -6,7 +6,7 @@ using Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 namespace Soenneker.Telnyx.Blazor.WebRtc.Registrars;
 
 /// <summary>
-/// Blazor interop library for the Telnyx WebRTC client, providing full access to Telnyx's browser-based voice and video calling features. Includes typed wrappers, event bridging, and support for advanced call control in Blazor WebAssembly apps.
+/// Registers Telnyx browser calling, media control, and WebRTC event interop for Blazor applications.
 /// </summary>
 public static class TelnyxWebRtcInteropRegistrar
 {

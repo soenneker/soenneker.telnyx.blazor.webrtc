@@ -4,130 +4,75 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.telnyx.blazor.webrtc/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.telnyx.blazor.webrtc/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Telnyx.Blazor.WebRtc
-A Blazor WebRTC component library for Telnyx, enabling real-time communication capabilities in your Blazor applications.
 
-## Key Features
-
-* ? **Real-time WebRTC Communication**
-  Seamless voice and video calling powered by Telnyx’s browser-based WebRTC SDK.
-
-* ?? **Automatic JS Module Bootstrapping**
-  Built-in JavaScript interop initialization with lazy loading and Blazor lifecycle integration.
-
-* ?? **High-Quality Audio & Video Calls**
-  Support for two-way audio and video with full control over microphone and webcam devices.
-
-* ?? **Advanced Call Management**
-  Programmatic control over call lifecycle: initiate, answer, hangup, hold, resume, mute/unmute, deaf/undeaf, DTMF tones, and more.
-
-* ?? **Device Enumeration & Dynamic Selection**
-  Enumerate and switch between available microphones, speakers, and cameras at runtime.
-
-* ?? **Custom Headers & Signaling Options**
-  Pass custom SIP headers during call setup for advanced routing or metadata requirements.
-
-* ?? **ICE Server & TURN/STUN Configuration**
-  Fully configurable ICE server settings for NAT traversal and improved connectivity in restricted networks.
-
-* ?? **Comprehensive Event Notifications**
-  Capture and handle all Telnyx WebRTC events: connection, media stream, call state, device changes, stats reports, and more.
+A Blazor component and JavaScript interop layer for Telnyx browser calling, including call control, media devices, screen sharing, DTMF, connection events, and call statistics.
 
 ## Installation
 
-```shell
+```bash
 dotnet add package Soenneker.Telnyx.Blazor.WebRtc
 ```
 
-## Setup
-
-### 1. Register Services
-
-In your `Program.cs` or startup file:
+Register the interop service in `Program.cs`:
 
 ```csharp
-public static async Task Main(string[] args)
-{
-    var builder = WebApplication.CreateBuilder(args);
+using Soenneker.Telnyx.Blazor.WebRtc.Registrars;
 
-    // Register Telnyx WebRTC services
-    builder.Services.AddTelnyxWebRtcInteropAsScoped();
-}
+builder.Services.AddTelnyxWebRtcInteropAsScoped();
 ```
 
-### 2. Component Usage
-
-Add the TelnyxWebRtc component to your Blazor page:
+## Component usage
 
 ```razor
 @using Soenneker.Telnyx.Blazor.WebRtc
+@using Soenneker.Telnyx.Blazor.WebRtc.Configuration
 
-<TelnyxWebRtc @ref="_telnyxWebRtc" Options="@_options" />
+<TelnyxWebRtc @ref="_rtc"
+              Options="_options"
+              OnReady="HandleReady"
+              OnError="HandleError" />
+
+<button @onclick="Call" disabled="@(!_ready)">Call</button>
 
 @code {
-    private ITelnyxWebRtc? _telnyxWebRtc;
-    private TelnyxClientOptions _options;
+    private TelnyxWebRtc? _rtc;
+    private bool _ready;
 
-    protected override void OnInitialized()
+    private readonly TelnyxClientOptions _options = new()
     {
-        _options = new TelnyxClientOptions
+        InitOptions = new TelnyxClientInitOptions
         {
-           InitOptions = new TelnyxClientInitOptions
-           {
-              Login = "YOUR_TELNYX_LOGIN",
-              Password = "YOUR_TELNYX_PASSWORD"
-              // Set other properties as needed
-           }
-        };
+            LoginToken = "short-lived-token-from-your-server"
+        }
+    };
+
+    private void HandleReady() => _ready = true;
+
+    private void HandleError(string error)
+    {
+        // Display or log the SDK error.
+    }
+
+    private async Task Call()
+    {
+        if (_rtc is null)
+            return;
+
+        await _rtc.Call(new TelnyxCallOptions
+        {
+            DestinationNumber = "+15551234567",
+            CallerNumber = "+15557654321",
+            Audio = true,
+            Video = false
+        });
     }
 }
 ```
 
-## Events
+Generate browser login tokens on a trusted server. Do not embed Telnyx API keys or other privileged credentials in a Blazor WebAssembly application.
 
-The component provides various events you can subscribe to:
+The component renders a hidden autoplay audio element by default. Set `RenderVideo="true"` for local and remote video elements, or `RenderHiddenAudio="false"` when the application supplies its own media elements.
 
-```
-_telnyxWebRtc.OnInitialize += HandleInitialize;
-_telnyxWebRtc.OnReady += HandleReady;
-_telnyxWebRtc.OnError += HandleError;
-_telnyxWebRtc.OnMessage += HandleMessage;
-_telnyxWebRtc.OnNotification += HandleNotification;
-_telnyxWebRtc.OnCallInitiated += HandleCallInitiated;
-_telnyxWebRtc.OnCallAnswered += HandleCallAnswered;
-_telnyxWebRtc.OnCallHeld += HandleCallHeld;
-_telnyxWebRtc.OnCallResumed += HandleCallResumed;
-_telnyxWebRtc.OnCallHangup += HandleCallHangup;
-...
-```
+The Telnyx browser SDK is loaded from its CDN by default. Set `UseCdn = false` in `TelnyxClientOptions` to load the packaged script instead. Microphone, camera, speaker selection, and screen sharing depend on browser support, user permission, and a secure browsing context.
 
-## Example Usage
-
-### Making a Call
-
-```csharp
-var callOptions = new TelnyxCallOptions
-{
-    DestinationNumber = "+1234567890",
-    CallerName = "John Doe",
-    CallerNumber = "+1987654321"
-};
-
-await _telnyxWebRtc.Call(callOptions);
-```
-
-### Answering a Call
-
-```csharp
-var answerOptions = new TelnyxAnswerOptions
-{
-    AutoPlayAudio = true
-};
-
-await _telnyxWebRtc.Answer(answerOptions);
-```
-
-### Hanging Up
-
-```csharp
-await _telnyxWebRtc.Hangup();
-```
+Call operations such as `Answer`, `Hangup`, `Hold`, `Unhold`, `MuteAudio`, `Dtmf`, `StartScreenShare`, and device enumeration are available from the component reference. Use the component's `On...` parameters for SDK and call lifecycle events.
