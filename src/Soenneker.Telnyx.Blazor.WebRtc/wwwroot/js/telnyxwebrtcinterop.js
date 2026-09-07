@@ -107,13 +107,10 @@ function bindEvents(wrapper) {
     wrapper.eventHandlers.set('telnyx.notification', notificationHandler);
 
     for (const eventName of sessionEvents) {
-        const handler = value => {
-            const dotNetEventName = eventName === 'telnyx.socket.message'
-                ? 'rawSocketMessage'
-                : eventName.substring('telnyx.'.length);
-
-            return invokeDotNet(wrapper, dotNetEventName, value);
-        };
+        const dotNetEventName = eventName === 'telnyx.socket.message'
+            ? 'rawSocketMessage'
+            : eventName.substring('telnyx.'.length);
+        const handler = value => invokeDotNet(wrapper, dotNetEventName, value);
 
         wrapper.client.on(eventName, handler);
         wrapper.eventHandlers.set(eventName, handler);
