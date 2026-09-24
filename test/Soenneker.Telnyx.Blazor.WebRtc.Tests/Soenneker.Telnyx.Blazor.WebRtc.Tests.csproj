@@ -28,4 +28,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Telnyx.Blazor.WebRtc\Soenneker.Telnyx.Blazor.WebRtc.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
+    </ItemGroup>
 </Project>

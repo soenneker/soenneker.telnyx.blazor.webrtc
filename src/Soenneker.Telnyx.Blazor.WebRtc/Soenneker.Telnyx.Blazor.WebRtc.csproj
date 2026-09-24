@@ -47,8 +47,15 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.102" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.461" />
-        <PackageReference Include="Soenneker.Blazor.Utils.InteropEventListener" Version="4.0.4141" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1756" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.87" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
+        <PackageReference Include="Microsoft.JSInterop" Version="10.0.12" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.130" />
+        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.123" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2713" />
     </ItemGroup>
 </Project>
