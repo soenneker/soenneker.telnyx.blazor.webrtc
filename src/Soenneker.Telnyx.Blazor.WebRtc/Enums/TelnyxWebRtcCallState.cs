@@ -8,6 +8,9 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Enums;
 [EnumValue<string>]
 public sealed partial class TelnyxCallState
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private TelnyxCallState() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>New call has been created in the client.</summary>
     public static readonly TelnyxCallState New = new("new");
 

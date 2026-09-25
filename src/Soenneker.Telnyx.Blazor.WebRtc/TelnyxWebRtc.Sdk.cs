@@ -41,17 +41,17 @@ public partial class TelnyxWebRtc
             throw new InvalidOperationException("WebRTC has not been initialized yet.");
     }
 
-    private static T? DeserializeNullable<T>(string? json) where T : class => json is null ? null : JsonUtil.Deserialize<T>(json);
-    private static JsonElement? DeserializeElement(string? json) => json is null ? null : JsonUtil.Deserialize<JsonElement>(json);
+    private static T? DeserializeNullable<T>(string? json) where T : class => json is null ? null : JsonUtil.Deserialize<T>(json, LibraryJsonContext.Get<T>());
+    private static JsonElement? DeserializeElement(string? json) => json is null ? null : JsonUtil.Deserialize<JsonElement>(json, LibraryJsonContext.Get<JsonElement>());
 
     public async ValueTask<List<TelnyxWebRtcCall>> GetActiveCalls(CancellationToken cancellationToken = default) =>
-        JsonUtil.Deserialize<List<TelnyxWebRtcCall>>(await SdkExecute(TelnyxWebRtcInterop.GetActiveCalls, cancellationToken)) ?? [];
+        JsonUtil.Deserialize<List<TelnyxWebRtcCall>>(await SdkExecute(TelnyxWebRtcInterop.GetActiveCalls, cancellationToken), LibraryJsonContext.Get<List<TelnyxWebRtcCall>>()) ?? [];
     public ValueTask<bool> GetIsRegistered(CancellationToken cancellationToken = default) => SdkExecute(TelnyxWebRtcInterop.GetIsRegistered, cancellationToken);
     public async ValueTask<JsonElement?> SpeedTest(int bytes, CancellationToken cancellationToken = default) => DeserializeElement(await SdkExecute((id, ct) => TelnyxWebRtcInterop.SpeedTest(id, bytes, ct), cancellationToken));
     public ValueTask<string?> ValidateDeviceId(string deviceId, string label, string kind, CancellationToken cancellationToken = default) => SdkExecute((id, ct) => TelnyxWebRtcInterop.ValidateDeviceId(id, deviceId, label, kind, ct), cancellationToken);
-    public async ValueTask<List<TelnyxDeviceResolution>> GetDeviceResolutions(string deviceId, CancellationToken cancellationToken = default) => JsonUtil.Deserialize<List<TelnyxDeviceResolution>>(await SdkExecute((id, ct) => TelnyxWebRtcInterop.GetDeviceResolutions(id, deviceId, ct), cancellationToken)) ?? [];
+    public async ValueTask<List<TelnyxDeviceResolution>> GetDeviceResolutions(string deviceId, CancellationToken cancellationToken = default) => JsonUtil.Deserialize<List<TelnyxDeviceResolution>>(await SdkExecute((id, ct) => TelnyxWebRtcInterop.GetDeviceResolutions(id, deviceId, ct), cancellationToken), LibraryJsonContext.Get<List<TelnyxDeviceResolution>>()) ?? [];
     public async ValueTask<JsonElement?> GetMediaConstraints(CancellationToken cancellationToken = default) => DeserializeElement(await SdkExecute(TelnyxWebRtcInterop.GetMediaConstraints, cancellationToken));
-    public async ValueTask<List<TelnyxIceServer>> GetIceServers(CancellationToken cancellationToken = default) => JsonUtil.Deserialize<List<TelnyxIceServer>>(await SdkExecute(TelnyxWebRtcInterop.GetIceServers, cancellationToken)) ?? [];
+    public async ValueTask<List<TelnyxIceServer>> GetIceServers(CancellationToken cancellationToken = default) => JsonUtil.Deserialize<List<TelnyxIceServer>>(await SdkExecute(TelnyxWebRtcInterop.GetIceServers, cancellationToken), LibraryJsonContext.Get<List<TelnyxIceServer>>()) ?? [];
     public ValueTask SetIceServers(List<TelnyxIceServer> servers, CancellationToken cancellationToken = default) => SdkExecute((id, ct) => TelnyxWebRtcInterop.SetIceServers(id, servers, ct), cancellationToken);
     public ValueTask<string?> GetSpeaker(CancellationToken cancellationToken = default) => SdkExecute(TelnyxWebRtcInterop.GetSpeaker, cancellationToken);
     public ValueTask SetSpeaker(string deviceId, CancellationToken cancellationToken = default) => SdkExecute((id, ct) => TelnyxWebRtcInterop.SetSpeaker(id, deviceId, ct), cancellationToken);

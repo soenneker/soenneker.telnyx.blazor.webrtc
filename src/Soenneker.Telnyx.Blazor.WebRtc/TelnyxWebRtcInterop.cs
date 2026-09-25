@@ -16,6 +16,11 @@ namespace Soenneker.Telnyx.Blazor.WebRtc;
 ///<inheritdoc cref="ITelnyxWebRtcInterop"/>
 public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 {
+    private readonly System.Text.Json.JsonSerializerOptions _jsonOptions;
+
+    private System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> GetJsonTypeInfo<T>() =>
+        (System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>)_jsonOptions.GetTypeInfo(typeof(T));
+
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncInitializer<bool> _scriptInitializer;
@@ -28,8 +33,9 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     private bool _useCdn = true;
 
-    public TelnyxWebRtcInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil)
+    public TelnyxWebRtcInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil, System.Text.Json.Serialization.JsonSerializerContext? jsonContext = null)
     {
+        _jsonOptions = LibraryJsonContext.WithContext(jsonContext);
         _resourceLoader = resourceLoader;
         _moduleImportUtil = moduleImportUtil;
         _scriptInitializer = new AsyncInitializer<bool>(InitializeScripts);
@@ -95,24 +101,24 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
         CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("create", linked, id, JsonUtil.Serialize(options), dotNetObjectRef), cancellationToken);
+        => Execute(linked => InvokeVoidAsync("create", linked, id, JsonUtil.Serialize(options, GetJsonTypeInfo<TelnyxClientOptions>()), dotNetObjectRef), cancellationToken);
 
     public ValueTask CreateObserver(string id, CancellationToken cancellationToken = default)
         => Execute(linked => InvokeVoidAsync("createObserver", linked, id), cancellationToken);
 
     public ValueTask Call(string id, TelnyxCallOptions callOptions, IJSObjectReference? localStream = null, IJSObjectReference? remoteStream = null,
         IJSObjectReference? localElement = null, IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("call", linked, id, JsonUtil.Serialize(callOptions), localStream, remoteStream, localElement, remoteElement), cancellationToken);
+        => Execute(linked => InvokeVoidAsync("call", linked, id, JsonUtil.Serialize(callOptions, GetJsonTypeInfo<TelnyxCallOptions>()), localStream, remoteStream, localElement, remoteElement), cancellationToken);
 
     public ValueTask Answer(string id, TelnyxAnswerOptions? options = null, IJSObjectReference? localElement = null,
         IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default)
         => Execute(linked => options != null
-            ? InvokeVoidAsync("answer", linked, id, JsonUtil.Serialize(options), localElement, remoteElement)
+            ? InvokeVoidAsync("answer", linked, id, JsonUtil.Serialize(options, GetJsonTypeInfo<TelnyxAnswerOptions>()), localElement, remoteElement)
             : InvokeVoidAsync("answer", linked, id, null, localElement, remoteElement), cancellationToken);
 
     public ValueTask Hangup(string id, TelnyxHangupOptions? options = null, bool? execute = null, CancellationToken cancellationToken = default)
         => Execute(linked => options != null
-            ? InvokeVoidAsync("hangup", linked, id, JsonUtil.Serialize(options), execute)
+            ? InvokeVoidAsync("hangup", linked, id, JsonUtil.Serialize(options, GetJsonTypeInfo<TelnyxHangupOptions>()), execute)
             : InvokeVoidAsync("hangup", linked, id, null, execute), cancellationToken);
 
     public ValueTask MuteAudio(string id, CancellationToken cancellationToken = default)
@@ -168,7 +174,7 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public ValueTask StartScreenShare(string id, TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default)
         => Execute(linked => options != null
-            ? InvokeVoidAsync("startScreenShare", linked, id, JsonUtil.Serialize(options))
+            ? InvokeVoidAsync("startScreenShare", linked, id, JsonUtil.Serialize(options, GetJsonTypeInfo<TelnyxScreenShareOptions>()))
             : InvokeVoidAsync("startScreenShare", linked, id), cancellationToken);
 
     public ValueTask StopScreenShare(string id, CancellationToken cancellationToken = default)
@@ -196,10 +202,10 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         => Execute(linked => InvokeAsync<bool>("checkPermissions", linked, id, audio, video), cancellationToken);
 
     public ValueTask<bool> SetAudioSettings(string id, TelnyxAudioSettings settings, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<bool>("setAudioSettings", linked, id, JsonUtil.Serialize(settings)), cancellationToken);
+        => Execute(linked => InvokeAsync<bool>("setAudioSettings", linked, id, JsonUtil.Serialize(settings, GetJsonTypeInfo<TelnyxAudioSettings>())), cancellationToken);
 
     public ValueTask<bool> SetVideoSettings(string id, TelnyxVideoSettings settings, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<bool>("setVideoSettings", linked, id, JsonUtil.Serialize(settings)), cancellationToken);
+        => Execute(linked => InvokeAsync<bool>("setVideoSettings", linked, id, JsonUtil.Serialize(settings, GetJsonTypeInfo<TelnyxVideoSettings>())), cancellationToken);
 
     public ValueTask EnableMicrophone(string id, CancellationToken cancellationToken = default)
         => Execute(linked => InvokeVoidAsync("enableMicrophone", linked, id), cancellationToken);

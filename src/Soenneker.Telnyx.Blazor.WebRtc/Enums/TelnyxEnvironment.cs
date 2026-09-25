@@ -9,6 +9,9 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Enums;
 [EnumValue<string>]
 public sealed partial class TelnyxEnvironment
 {
+    // Prevent JSON source generation from assuming an implicit public constructor.
+    private TelnyxEnvironment() => throw new System.NotSupportedException("Use a declared enum value.");
+
     /// <summary>
     /// The development environment. Use this when testing with a non-production Telnyx configuration.
     /// </summary>
