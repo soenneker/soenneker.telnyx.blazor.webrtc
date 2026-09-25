@@ -45,17 +45,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.102" />
-        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.461" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1757" />
-        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.87" />
+        <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.104" />
+        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.462" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1759" />
+        <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.90" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
         <PackageReference Include="Microsoft.JSInterop" Version="10.0.12" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-        <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.130" />
-        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.123" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2714" />
+        <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.131" />
+        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.124" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2716" />
     </ItemGroup>
 </Project>
