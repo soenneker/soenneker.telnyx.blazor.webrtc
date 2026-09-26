@@ -3,6 +3,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <EnumValuesInlining>NoInlining</EnumValuesInlining>
         <Nullable>enable</Nullable>
+        <IsAotCompatible>true</IsAotCompatible>
         <Platforms>AnyCPU</Platforms>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>

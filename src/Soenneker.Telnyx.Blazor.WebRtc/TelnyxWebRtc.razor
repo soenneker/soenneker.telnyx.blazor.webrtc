@@ -1,4 +1,4 @@
-﻿@using System.Text.Json
+@using System.Text.Json
 @using System.Threading
 @using Microsoft.JSInterop
 @using Soenneker.Extensions.Task
@@ -519,7 +519,7 @@
         using (cts)
         {
             string json = await TelnyxWebRtcInterop.GetDevices( Id!, linked).NoSync();
-            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json, LibraryJsonContext.Get<List<MediaDeviceInfo>>()) ?? [];
         }
     }
 
@@ -533,7 +533,7 @@
         using (cts)
         {
             string json = await TelnyxWebRtcInterop.GetVideoDevices( Id!, linked).NoSync();
-            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json, LibraryJsonContext.Get<List<MediaDeviceInfo>>()) ?? [];
         }
     }
 
@@ -547,7 +547,7 @@
         using (cts)
         {
             string json = await TelnyxWebRtcInterop.GetAudioInDevices( Id!, linked).NoSync();
-            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json, LibraryJsonContext.Get<List<MediaDeviceInfo>>()) ?? [];
         }
     }
 
@@ -561,7 +561,7 @@
         using (cts)
         {
             string json = await TelnyxWebRtcInterop.GetAudioOutDevices( Id!, linked).NoSync();
-            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json) ?? [];
+            return JsonUtil.Deserialize<List<MediaDeviceInfo>>(json, LibraryJsonContext.Get<List<MediaDeviceInfo>>()) ?? [];
         }
     }
 
@@ -770,7 +770,7 @@
             case "notification":
                 try
                 {
-                    var notification = JsonUtil.Deserialize<TelnyxNotification>(jsonArgs);
+                    var notification = JsonUtil.Deserialize<TelnyxNotification>(jsonArgs, LibraryJsonContext.Get<TelnyxNotification>());
 
                     if (notification is null)
                     {

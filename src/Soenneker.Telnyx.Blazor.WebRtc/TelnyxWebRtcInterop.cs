@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
@@ -87,7 +88,7 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         await module.InvokeVoidAsync(identifier, cancellationToken, args);
     }
 
-    private async ValueTask<T> InvokeAsync<T>(string identifier, CancellationToken cancellationToken = default, params object?[] args)
+    private async ValueTask<T> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] T>(string identifier, CancellationToken cancellationToken = default, params object?[] args)
     {
         IJSObjectReference module = await GetModule(cancellationToken);
         return await module.InvokeAsync<T>(identifier, cancellationToken, args);

@@ -10,6 +10,8 @@ namespace Soenneker.Telnyx.Blazor.WebRtc;
 
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, ReadCommentHandling = JsonCommentHandling.Skip, UseStringEnumConverter = true, Converters = new[] { typeof(TelnyxEnvironmentMetadataConverter), typeof(TelnyxCallStateMetadataConverter) })]
 [JsonSerializable(typeof(JsonElement))]
+[JsonSerializable(typeof(List<MediaDeviceInfo>))]
+[JsonSerializable(typeof(TelnyxNotification))]
 [JsonSerializable(typeof(List<TelnyxDeviceResolution>))]
 [JsonSerializable(typeof(List<TelnyxIceServer>))]
 [JsonSerializable(typeof(List<TelnyxWebRtcCall>))]
