@@ -48,7 +48,7 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.108" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.462" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1765" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1766" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.90" />
     </ItemGroup>
     <ItemGroup>
@@ -57,6 +57,6 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.131" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.124" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2727" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2728" />
     </ItemGroup>
 </Project>
