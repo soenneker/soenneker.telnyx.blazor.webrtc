@@ -24,7 +24,7 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     private readonly AsyncInitializer<bool> _scriptInitializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.js";
     private const string _localScriptPath = "_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtc.js";
     private const string _cdnScriptPath = "https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.27.5/lib/bundle.js";
     private const string _cdnScriptIntegrity = "sha256-1qrBMIDKOEJUeN3SCEKVW9AhCoipPehcygwsCeK54Qk=";
@@ -52,26 +52,6 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         _ = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
     }
 
-    private async ValueTask Execute(Func<CancellationToken, ValueTask> action, CancellationToken cancellationToken = default)
-    {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
-
-        using (source)
-        {
-            await action(linked);
-        }
-    }
-
-    private async ValueTask<T> Execute<T>(Func<CancellationToken, ValueTask<T>> action, CancellationToken cancellationToken = default)
-    {
-        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
-
-        using (source)
-        {
-            return await action(linked);
-        }
-    }
-
     private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken = default)
     {
         await _scriptInitializer.Init(_useCdn, cancellationToken);
@@ -80,165 +60,175 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     private async ValueTask InvokeVoidAsync(string identifier, CancellationToken cancellationToken = default, params object?[] args)
     {
-        IJSObjectReference module = await GetModule(cancellationToken);
-        await module.InvokeVoidAsync(identifier, cancellationToken, args);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        using (source)
+        {
+            IJSObjectReference module = await GetModule(linked);
+            await module.InvokeVoidAsync(identifier, linked, args);
+        }
     }
 
     private async ValueTask<T> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] T>(string identifier, CancellationToken cancellationToken = default, params object?[] args)
     {
-        IJSObjectReference module = await GetModule(cancellationToken);
-        return await module.InvokeAsync<T>(identifier, cancellationToken, args);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        using (source)
+        {
+            IJSObjectReference module = await GetModule(linked);
+            return await module.InvokeAsync<T>(identifier, linked, args);
+        }
     }
 
-    public ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
+    public async ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
     {
         _useCdn = useCdn;
-        return Execute(linked => _scriptInitializer.Init(_useCdn, linked), cancellationToken);
+        CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        using (source)
+            await _scriptInitializer.Init(useCdn, linked);
     }
 
     public ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
         CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("create", linked, id, JsonUtil.Serialize(options), dotNetObjectRef), cancellationToken);
+        => InvokeVoidAsync("create", cancellationToken, id, JsonUtil.Serialize(options), dotNetObjectRef);
 
     public ValueTask CreateObserver(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("createObserver", linked, id), cancellationToken);
+        => InvokeVoidAsync("createObserver", cancellationToken, id);
 
     public ValueTask Call(string id, TelnyxCallOptions callOptions, IJSObjectReference? localStream = null, IJSObjectReference? remoteStream = null,
         IJSObjectReference? localElement = null, IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("call", linked, id, JsonUtil.Serialize(callOptions), localStream, remoteStream, localElement, remoteElement), cancellationToken);
+        => InvokeVoidAsync("call", cancellationToken, id, JsonUtil.Serialize(callOptions), localStream, remoteStream, localElement, remoteElement);
 
     public ValueTask Answer(string id, TelnyxAnswerOptions? options = null, IJSObjectReference? localElement = null,
         IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default)
-        => Execute(linked => options != null
-            ? InvokeVoidAsync("answer", linked, id, JsonUtil.Serialize(options), localElement, remoteElement)
-            : InvokeVoidAsync("answer", linked, id, null, localElement, remoteElement), cancellationToken);
+        => options != null
+            ? InvokeVoidAsync("answer", cancellationToken, id, JsonUtil.Serialize(options), localElement, remoteElement)
+            : InvokeVoidAsync("answer", cancellationToken, id, null, localElement, remoteElement);
 
     public ValueTask Hangup(string id, TelnyxHangupOptions? options = null, bool? execute = null, CancellationToken cancellationToken = default)
-        => Execute(linked => options != null
-            ? InvokeVoidAsync("hangup", linked, id, JsonUtil.Serialize(options), execute)
-            : InvokeVoidAsync("hangup", linked, id, null, execute), cancellationToken);
+        => options != null
+            ? InvokeVoidAsync("hangup", cancellationToken, id, JsonUtil.Serialize(options), execute)
+            : InvokeVoidAsync("hangup", cancellationToken, id, null, execute);
 
     public ValueTask MuteAudio(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("muteAudio", linked, id), cancellationToken);
+        => InvokeVoidAsync("muteAudio", cancellationToken, id);
 
     public ValueTask UnmuteAudio(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("unmuteAudio", linked, id), cancellationToken);
+        => InvokeVoidAsync("unmuteAudio", cancellationToken, id);
 
     public ValueTask ToggleAudioMute(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("toggleAudioMute", linked, id), cancellationToken);
+        => InvokeVoidAsync("toggleAudioMute", cancellationToken, id);
 
     public ValueTask MuteVideo(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("muteVideo", linked, id), cancellationToken);
+        => InvokeVoidAsync("muteVideo", cancellationToken, id);
 
     public ValueTask UnmuteVideo(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("unmuteVideo", linked, id), cancellationToken);
+        => InvokeVoidAsync("unmuteVideo", cancellationToken, id);
 
     public ValueTask ToggleVideoMute(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("toggleVideoMute", linked, id), cancellationToken);
+        => InvokeVoidAsync("toggleVideoMute", cancellationToken, id);
 
     public ValueTask Deaf(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("deaf", linked, id), cancellationToken);
+        => InvokeVoidAsync("deaf", cancellationToken, id);
 
     public ValueTask Undeaf(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("undeaf", linked, id), cancellationToken);
+        => InvokeVoidAsync("undeaf", cancellationToken, id);
 
     public ValueTask ToggleDeaf(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("toggleDeaf", linked, id), cancellationToken);
+        => InvokeVoidAsync("toggleDeaf", cancellationToken, id);
 
     public ValueTask Hold(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("hold", linked, id), cancellationToken);
+        => InvokeVoidAsync("hold", cancellationToken, id);
 
     public ValueTask Unhold(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("unhold", linked, id), cancellationToken);
+        => InvokeVoidAsync("unhold", cancellationToken, id);
 
     public ValueTask ToggleHold(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("toggleHold", linked, id), cancellationToken);
+        => InvokeVoidAsync("toggleHold", cancellationToken, id);
 
     public ValueTask Dtmf(string id, string digit, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("dtmf", linked, id, digit), cancellationToken);
+        => InvokeVoidAsync("dtmf", cancellationToken, id, digit);
 
     public ValueTask Message(string id, string to, string body, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("message", linked, id, to, body), cancellationToken);
+        => InvokeVoidAsync("message", cancellationToken, id, to, body);
 
     public ValueTask SetAudioInDevice(string id, string deviceId, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("setAudioInDevice", linked, id, deviceId), cancellationToken);
+        => InvokeVoidAsync("setAudioInDevice", cancellationToken, id, deviceId);
 
     public ValueTask SetVideoDevice(string id, string deviceId, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("setVideoDevice", linked, id, deviceId), cancellationToken);
+        => InvokeVoidAsync("setVideoDevice", cancellationToken, id, deviceId);
 
     public ValueTask SetAudioOutDevice(string id, string deviceId, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("setAudioOutDevice", linked, id, deviceId), cancellationToken);
+        => InvokeVoidAsync("setAudioOutDevice", cancellationToken, id, deviceId);
 
     public ValueTask StartScreenShare(string id, TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default)
-        => Execute(linked => options != null
-            ? InvokeVoidAsync("startScreenShare", linked, id, JsonUtil.Serialize(options))
-            : InvokeVoidAsync("startScreenShare", linked, id), cancellationToken);
+        => options != null
+            ? InvokeVoidAsync("startScreenShare", cancellationToken, id, JsonUtil.Serialize(options))
+            : InvokeVoidAsync("startScreenShare", cancellationToken, id);
 
     public ValueTask StopScreenShare(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("stopScreenShare", linked, id), cancellationToken);
+        => InvokeVoidAsync("stopScreenShare", cancellationToken, id);
 
     public ValueTask SetAudioBandwidth(string id, int bps, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("setAudioBandwidth", linked, id, bps), cancellationToken);
+        => InvokeVoidAsync("setAudioBandwidth", cancellationToken, id, bps);
 
     public ValueTask SetVideoBandwidth(string id, int bps, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("setVideoBandwidth", linked, id, bps), cancellationToken);
+        => InvokeVoidAsync("setVideoBandwidth", cancellationToken, id, bps);
 
     public ValueTask<string> GetDevices(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<string>("getDevices", linked, id), cancellationToken);
+        => InvokeAsync<string>("getDevices", cancellationToken, id);
 
     public ValueTask<string> GetVideoDevices(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<string>("getVideoDevices", linked, id), cancellationToken);
+        => InvokeAsync<string>("getVideoDevices", cancellationToken, id);
 
     public ValueTask<string> GetAudioInDevices(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<string>("getAudioInDevices", linked, id), cancellationToken);
+        => InvokeAsync<string>("getAudioInDevices", cancellationToken, id);
 
     public ValueTask<string> GetAudioOutDevices(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<string>("getAudioOutDevices", linked, id), cancellationToken);
+        => InvokeAsync<string>("getAudioOutDevices", cancellationToken, id);
 
     public ValueTask<bool> CheckPermissions(string id, bool audio = true, bool video = true, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<bool>("checkPermissions", linked, id, audio, video), cancellationToken);
+        => InvokeAsync<bool>("checkPermissions", cancellationToken, id, audio, video);
 
     public ValueTask<bool> SetAudioSettings(string id, TelnyxAudioSettings settings, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<bool>("setAudioSettings", linked, id, JsonUtil.Serialize(settings)), cancellationToken);
+        => InvokeAsync<bool>("setAudioSettings", cancellationToken, id, JsonUtil.Serialize(settings));
 
     public ValueTask<bool> SetVideoSettings(string id, TelnyxVideoSettings settings, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<bool>("setVideoSettings", linked, id, JsonUtil.Serialize(settings)), cancellationToken);
+        => InvokeAsync<bool>("setVideoSettings", cancellationToken, id, JsonUtil.Serialize(settings));
 
     public ValueTask EnableMicrophone(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("enableMicrophone", linked, id), cancellationToken);
+        => InvokeVoidAsync("enableMicrophone", cancellationToken, id);
 
     public ValueTask DisableMicrophone(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("disableMicrophone", linked, id), cancellationToken);
+        => InvokeVoidAsync("disableMicrophone", cancellationToken, id);
 
     public ValueTask EnableWebcam(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("enableWebcam", linked, id), cancellationToken);
+        => InvokeVoidAsync("enableWebcam", cancellationToken, id);
 
     public ValueTask DisableWebcam(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("disableWebcam", linked, id), cancellationToken);
+        => InvokeVoidAsync("disableWebcam", cancellationToken, id);
 
     public ValueTask ToggleAudio(string id, bool enabled, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("toggleAudio", linked, id, enabled), cancellationToken);
+        => InvokeVoidAsync("toggleAudio", cancellationToken, id, enabled);
 
     public ValueTask ToggleVideo(string id, bool enabled, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("toggleVideo", linked, id, enabled), cancellationToken);
+        => InvokeVoidAsync("toggleVideo", cancellationToken, id, enabled);
 
     public ValueTask Disconnect(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("disconnect", linked, id), cancellationToken);
+        => InvokeVoidAsync("disconnect", cancellationToken, id);
 
     public ValueTask Reconnect(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("reconnect", linked, id), cancellationToken);
+        => InvokeVoidAsync("reconnect", cancellationToken, id);
 
     public ValueTask Unmount(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("unmount", linked, id), cancellationToken);
+        => InvokeVoidAsync("unmount", cancellationToken, id);
 
     public ValueTask<string?> GetCallStats(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeAsync<string?>("getCallStats", linked, id), cancellationToken);
+        => InvokeAsync<string?>("getCallStats", cancellationToken, id);
 
     public ValueTask SetAudioVolume(string id, double volume, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("setAudioVolume", linked, id, volume), cancellationToken);
+        => InvokeVoidAsync("setAudioVolume", cancellationToken, id, volume);
 
     public ValueTask Connect(string id, CancellationToken cancellationToken = default)
-        => Execute(linked => InvokeVoidAsync("connect", linked, id), cancellationToken);
+        => InvokeVoidAsync("connect", cancellationToken, id);
 
     /// <summary>
     /// Asynchronously releases resources used by the current instance.
