@@ -88,24 +88,24 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
         CancellationToken cancellationToken = default)
-        => InvokeVoidAsync("create", cancellationToken, id, JsonUtil.Serialize(options), dotNetObjectRef);
+        => InvokeVoidAsync("create", cancellationToken, id, SerializePayload(options), dotNetObjectRef);
 
     public ValueTask CreateObserver(string id, CancellationToken cancellationToken = default)
         => InvokeVoidAsync("createObserver", cancellationToken, id);
 
     public ValueTask Call(string id, TelnyxCallOptions callOptions, IJSObjectReference? localStream = null, IJSObjectReference? remoteStream = null,
         IJSObjectReference? localElement = null, IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default)
-        => InvokeVoidAsync("call", cancellationToken, id, JsonUtil.Serialize(callOptions), localStream, remoteStream, localElement, remoteElement);
+        => InvokeVoidAsync("call", cancellationToken, id, SerializePayload(callOptions), localStream, remoteStream, localElement, remoteElement);
 
     public ValueTask Answer(string id, TelnyxAnswerOptions? options = null, IJSObjectReference? localElement = null,
         IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default)
         => options != null
-            ? InvokeVoidAsync("answer", cancellationToken, id, JsonUtil.Serialize(options), localElement, remoteElement)
+            ? InvokeVoidAsync("answer", cancellationToken, id, SerializePayload(options), localElement, remoteElement)
             : InvokeVoidAsync("answer", cancellationToken, id, null, localElement, remoteElement);
 
     public ValueTask Hangup(string id, TelnyxHangupOptions? options = null, bool? execute = null, CancellationToken cancellationToken = default)
         => options != null
-            ? InvokeVoidAsync("hangup", cancellationToken, id, JsonUtil.Serialize(options), execute)
+            ? InvokeVoidAsync("hangup", cancellationToken, id, SerializePayload(options), execute)
             : InvokeVoidAsync("hangup", cancellationToken, id, null, execute);
 
     public ValueTask MuteAudio(string id, CancellationToken cancellationToken = default)
@@ -161,7 +161,7 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public ValueTask StartScreenShare(string id, TelnyxScreenShareOptions? options = null, CancellationToken cancellationToken = default)
         => options != null
-            ? InvokeVoidAsync("startScreenShare", cancellationToken, id, JsonUtil.Serialize(options))
+            ? InvokeVoidAsync("startScreenShare", cancellationToken, id, SerializePayload(options))
             : InvokeVoidAsync("startScreenShare", cancellationToken, id);
 
     public ValueTask StopScreenShare(string id, CancellationToken cancellationToken = default)
@@ -189,10 +189,10 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
         => InvokeAsync<bool>("checkPermissions", cancellationToken, id, audio, video);
 
     public ValueTask<bool> SetAudioSettings(string id, TelnyxAudioSettings settings, CancellationToken cancellationToken = default)
-        => InvokeAsync<bool>("setAudioSettings", cancellationToken, id, JsonUtil.Serialize(settings));
+        => InvokeAsync<bool>("setAudioSettings", cancellationToken, id, SerializePayload(settings));
 
     public ValueTask<bool> SetVideoSettings(string id, TelnyxVideoSettings settings, CancellationToken cancellationToken = default)
-        => InvokeAsync<bool>("setVideoSettings", cancellationToken, id, JsonUtil.Serialize(settings));
+        => InvokeAsync<bool>("setVideoSettings", cancellationToken, id, SerializePayload(settings));
 
     public ValueTask EnableMicrophone(string id, CancellationToken cancellationToken = default)
         => InvokeVoidAsync("enableMicrophone", cancellationToken, id);
