@@ -86,7 +86,23 @@ async function createClient(wrapper) {
 function bindEvents(wrapper) {
     const notificationHandler = async notification => {
         if (notification?.type === 'callUpdate' && notification.call) {
-            wrapper.currentCall = notification.call;
+            const incoming = notification.call;
+            const current = wrapper.currentCall;
+            // Keep one selected browser call at a time. Never redirect call controls
+            // or the UI to a different call while the selected call is still alive.
+            if (current && current.id !== incoming.id && !terminalCallStates.has(current.state)) {
+                if (!terminalCallStates.has(incoming.state)) {
+                    try {
+                        await incoming.hangup();
+                    } catch (error) {
+                        console.warn("Unable to reject an additional call", error);
+                    }
+                }
+                return;
+            }
+            if (!terminalCallStates.has(incoming.state)) {
+                wrapper.currentCall = incoming;
+            }
         }
 
         await invokeDotNet(wrapper, 'notification', normalizeNotification(notification));
@@ -98,7 +114,7 @@ function bindEvents(wrapper) {
         const call = notification.call;
         const state = call.state;
 
-        if (terminalCallStates.has(state) && wrapper.currentCall === call) {
+        if (terminalCallStates.has(state) && wrapper.currentCall?.id === call.id) {
             wrapper.currentCall = null;
         }
     };
