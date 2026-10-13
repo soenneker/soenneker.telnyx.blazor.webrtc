@@ -22,13 +22,13 @@
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.334" />
         <PackageReference Include="Soenneker.Tests.HostedUnit" Version="4.0.322" />
         <PackageReference Include="Soenneker.Blazor.MockJsRuntime" Version="4.0.355" />
-        <PackageReference Include="TUnit" Version="1.74.0" />
+        <PackageReference Include="TUnit" Version="1.75.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Telnyx.Blazor.WebRtc\Soenneker.Telnyx.Blazor.WebRtc.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
     </ItemGroup>
 </Project>
