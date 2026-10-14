@@ -10,8 +10,8 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.13" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.13" PrivateAssets="all" />
-        <PackageReference Include="Soenneker.Quark.Suite" Version="4.0.1573" />
-        <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.435" />
+        <PackageReference Include="Soenneker.Quark.Suite" Version="4.0.1574" />
+        <PackageReference Include="Soenneker.Serilog.Sinks.Browser.Blazor" Version="4.0.436" />
     </ItemGroup>
 
     <ItemGroup>
