@@ -55,7 +55,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
         <PackageReference Include="Microsoft.JSInterop" Version="10.0.13" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.134" />
-        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.127" />
+        <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.132" />
         <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2742" />
     </ItemGroup>
 </Project>
