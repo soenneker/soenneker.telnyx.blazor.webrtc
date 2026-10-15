@@ -48,7 +48,7 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="4.0.130" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="4.0.472" />
-        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1788" />
+        <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="4.0.1791" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="4.0.118" />
     </ItemGroup>
     <ItemGroup>
@@ -56,6 +56,6 @@
         <PackageReference Include="Microsoft.JSInterop" Version="10.0.13" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="4.0.140" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.133" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2755" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="4.0.2756" />
     </ItemGroup>
 </Project>
