@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
 
@@ -20,15 +20,15 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.342" />
-        <PackageReference Include="Soenneker.Tests.HostedUnit" Version="4.0.337" />
-        <PackageReference Include="Soenneker.Blazor.MockJsRuntime" Version="4.0.363" />
-        <PackageReference Include="TUnit" Version="1.76.0" />
+        <PackageReference Include="Soenneker.Tests.HostedUnit" Version="4.0.338" />
+        <PackageReference Include="Soenneker.Blazor.MockJsRuntime" Version="4.0.364" />
+        <PackageReference Include="TUnit" Version="1.76.28" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Telnyx.Blazor.WebRtc\Soenneker.Telnyx.Blazor.WebRtc.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0-rc.3.26522.148" />
     </ItemGroup>
 </Project>
