@@ -55,6 +55,6 @@
         <PackageReference Include="Microsoft.JSInterop" Version="11.0.0-rc.3.26522.148" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="11.0.141" />
         <PackageReference Include="Soenneker.Extensions.ValueTask" Version="4.0.133" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2769" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2770" />
     </ItemGroup>
 </Project>
