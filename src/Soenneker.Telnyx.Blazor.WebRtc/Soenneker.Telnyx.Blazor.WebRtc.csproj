@@ -6,7 +6,7 @@
         <IsAotCompatible>true</IsAotCompatible>
         <Platforms>AnyCPU</Platforms>
         <NoWarn>$(NoWarn);1591</NoWarn>
-        <WebMinifierFolders>wwwroot/js</WebMinifierFolders>
+        <WebMinifierFolders>wwwroot/js/interop</WebMinifierFolders>
         <WebMinifierJsEnabled>true</WebMinifierJsEnabled>
         <WebMinifierCssEnabled>false</WebMinifierCssEnabled>
     </PropertyGroup>
