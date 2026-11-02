@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Soenneker.Lepton.Suite.Abstract;
+using Soenneker.Telnyx.Blazor.WebRtc.Enums;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 
@@ -14,6 +15,27 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// </summary>
 public partial interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentElement
 {
+    /// <summary>Initialization options, snapshotted at first interactive render. Later changes require recreating the component or explicit session operations.</summary>
+    TelnyxClientOptions? Options { get; set; }
+    /// <summary>Playback volume in the inclusive range zero to one.</summary>
+    double SpeakerVolume { get; set; }
+    /// <summary>Explicit rendering mode. When absent, RenderVideo takes precedence over RenderHiddenAudio. Fixed after initialization.</summary>
+    TelnyxMediaMode? MediaMode { get; set; }
+    /// <summary>Current connection state, distinguishing transport connection from registration.</summary>
+    TelnyxConnectionState ConnectionState { get; }
+    /// <summary>Receives structured event snapshots. Legacy callbacks remain available for compatibility.</summary>
+    EventCallback<TelnyxSessionEvent> OnSessionEvent { get; set; }
+    /// <summary>Raised when the session connection state changes.</summary>
+    EventCallback<TelnyxConnectionState> OnConnectionStateChanged { get; set; }
+    /// <summary>Receives structured SDK errors including diagnostic codes and recoverability.</summary>
+    EventCallback<TelnyxWebRtcError> OnSdkError { get; set; }
+    /// <summary>Receives allowlisted diagnostics when EnableDiagnostics is enabled.</summary>
+    EventCallback<TelnyxDiagnostic> OnDiagnostic { get; set; }
+    /// <summary>Raised when remote playback needs user interaction.</summary>
+    EventCallback OnPlaybackBlocked { get; set; }
+    /// <summary>Retries remote playback; call from a user interaction after OnPlaybackBlocked.</summary>
+    ValueTask<bool> ResumePlayback(CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Gets or sets a value indicating whether render hidden audio.
     /// </summary>

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Soenneker.Telnyx.Blazor.WebRtc.Enums;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 
@@ -7,6 +8,27 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 /// </summary>
 public sealed class TelnyxClientOptions
 {
+    /// <summary>Enables allowlisted diagnostic events and session logging. Disabled by default.</summary>
+    [JsonPropertyName("enableDiagnostics")]
+    public bool EnableDiagnostics { get; set; }
+
+    /// <summary>Enables raw socket events and raw event payloads. May contain sensitive SDK data.</summary>
+    [JsonPropertyName("enableRawEvents")]
+    public bool EnableRawEvents { get; set; }
+
+    /// <summary>Policy for additional non-screen-share calls while the selected call is alive.</summary>
+    [JsonPropertyName("additionalCallPolicy")]
+    public TelnyxAdditionalCallPolicy AdditionalCallPolicy { get; set; }
+
+    internal TelnyxClientOptions Snapshot()
+    {
+        var copy = System.Text.Json.JsonSerializer.Deserialize(
+            System.Text.Json.JsonSerializer.Serialize(this, LibraryJsonContext.Get<TelnyxClientOptions>()),
+            LibraryJsonContext.Get<TelnyxClientOptions>())!;
+        copy.UseCdn = UseCdn;
+        return copy;
+    }
+
     /// <summary>
     /// Gets or sets init options.
     /// </summary>

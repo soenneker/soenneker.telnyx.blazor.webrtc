@@ -18,6 +18,7 @@ public static class TelnyxWebRtcInteropRegistrar
         services.AddResourceLoaderAsScoped()
                 .TryAddScoped<ITelnyxWebRtcInterop, TelnyxWebRtcInterop>();
 
+        services.TryAddScoped<ITelnyxWebRtcSessionFactory, TelnyxWebRtcSessionFactory>();
         return services;
     }
 }

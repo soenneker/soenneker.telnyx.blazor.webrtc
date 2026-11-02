@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc.Dtos;
 
@@ -7,6 +8,15 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Dtos;
 /// </summary>
 public sealed class TelnyxWebRtcError
 {
+    [JsonPropertyName("code")] public JsonElement? Code { get; set; }
+    [JsonPropertyName("description")] public string? Description { get; set; }
+    [JsonPropertyName("causes")] public string[]? Causes { get; set; }
+    [JsonPropertyName("solutions")] public string[]? Solutions { get; set; }
+    [JsonPropertyName("fatal")] public bool? Fatal { get; set; }
+    [JsonPropertyName("recoverable")] public bool? Recoverable { get; set; }
+    [JsonPropertyName("callId")] public string? CallId { get; set; }
+    [JsonPropertyName("sessionId")] public string? SessionId { get; set; }
+
     /// <summary>
     /// The error message describing the issue.
     /// </summary>

@@ -1,3 +1,5 @@
+using System;
+using Soenneker.Asyncs.Semaphores;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.JSInterop;
 using Soenneker.Asyncs.Initializers;
@@ -13,7 +15,6 @@ using Soenneker.Blazor.Extensions.IJSObjectReferences;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc;
 
-///<inheritdoc cref="ITelnyxWebRtcInterop"/>
 public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 {
     private readonly IModuleImportUtil _moduleImportUtil;
@@ -22,11 +23,14 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     private readonly CancellationScope _cancellationScope = new();
 
     private const string _modulePath = "./_content/Soenneker.Telnyx.Blazor.WebRtc/js/interop/telnyxwebrtcinterop.min.js";
-    private const string _localScriptPath = "_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtc.js";
-    private const string _cdnScriptPath = "https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.27.5/lib/bundle.js";
-    private const string _cdnScriptIntegrity = "sha256-1qrBMIDKOEJUeN3SCEKVW9AhCoipPehcygwsCeK54Qk=";
+    private const string _localScriptPath = "_content/Soenneker.Telnyx.Blazor.WebRtc/js/bundle.js";
+    private const string _cdnScriptPath = "https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.28.0/lib/bundle.js";
+    private const string _cdnScriptIntegrity = "sha256-Hyboisb3nnz/NjDcNRQBpCU/weanORlXs27KQGRB164=";
 
     private bool _useCdn = true;
+    private bool? _initializedUseCdn;
+    private bool _disposed;
+    private readonly AsyncSemaphore _lifecycle = new(1);
 
     public TelnyxWebRtcInterop(IResourceLoader resourceLoader, IModuleImportUtil moduleImportUtil)
     {
@@ -39,11 +43,11 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     {
         if (useCdn)
         {
-            await _resourceLoader.LoadScriptAndWaitForVariable(_cdnScriptPath, "TelnyxWebRTC", integrity: _cdnScriptIntegrity, cancellationToken: token);
+            await _resourceLoader.LoadScriptAndWaitForVariable(_cdnScriptPath, "TelnyxWebRTC", integrity: _cdnScriptIntegrity, timeout: 15000, cancellationToken: token);
         }
         else
         {
-            await _resourceLoader.LoadScriptAndWaitForVariable(_localScriptPath, "TelnyxWebRTC", cancellationToken: token);
+            await _resourceLoader.LoadScriptAndWaitForVariable(_localScriptPath, "TelnyxWebRTC", timeout: 15000, cancellationToken: token);
         }
 
         _ = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
@@ -51,7 +55,7 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     private async ValueTask<IJSObjectReference> GetModule(CancellationToken cancellationToken = default)
     {
-        await _scriptInitializer.Init(_useCdn, cancellationToken);
+        await Initialize(_useCdn, cancellationToken);
         return await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
     }
 
@@ -79,18 +83,35 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 
     public async ValueTask Initialize(bool useCdn = true, CancellationToken cancellationToken = default)
     {
-        _useCdn = useCdn;
+        using var lease = await _lifecycle.Acquire(cancellationToken);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (_initializedUseCdn is { } selected)
+        {
+            if (selected != useCdn) throw new InvalidOperationException("SDK script source is fixed for this scope after initialization.");
+            return;
+        }
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
-        using (source)
-            await _scriptInitializer.Init(useCdn, linked);
+        using (source) await _scriptInitializer.Init(useCdn, linked);
+        _useCdn = useCdn;
+        _initializedUseCdn = useCdn;
     }
 
     public ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options,
         CancellationToken cancellationToken = default)
         => InvokeVoidAsync("create", cancellationToken, id, SerializePayload(options), dotNetObjectRef);
 
+    public ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtcSession> callback, TelnyxClientOptions options,
+        CancellationToken cancellationToken = default)
+        => InvokeVoidAsync("create", cancellationToken, id, SerializePayload(options), callback);
+
+    public ValueTask<bool> ResumePlayback(string id, CancellationToken cancellationToken = default)
+        => InvokeAsync<bool>("resumePlayback", cancellationToken, id);
+
     public ValueTask CreateObserver(string id, CancellationToken cancellationToken = default)
         => InvokeVoidAsync("createObserver", cancellationToken, id);
+
+    public ValueTask CreateObserver(string id, string elementId, CancellationToken cancellationToken = default)
+        => InvokeVoidAsync("createObserver", cancellationToken, id, elementId);
 
     public ValueTask Call(string id, TelnyxCallOptions callOptions, IJSObjectReference? localStream = null, IJSObjectReference? remoteStream = null,
         IJSObjectReference? localElement = null, IJSObjectReference? remoteElement = null, CancellationToken cancellationToken = default)
@@ -229,14 +250,16 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     public ValueTask Connect(string id, CancellationToken cancellationToken = default)
         => InvokeVoidAsync("connect", cancellationToken, id);
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
-        await _moduleImportUtil.DisposeContentModule(_modulePath);
-        await _scriptInitializer.DisposeAsync();
-        await _cancellationScope.DisposeAsync();
+        using var lease = await _lifecycle.Acquire();
+        if (_disposed) return;
+        _disposed = true;
+        try { await _moduleImportUtil.DisposeContentModule(_modulePath); }
+        finally
+        {
+            try { await _scriptInitializer.DisposeAsync(); }
+            finally { await _cancellationScope.DisposeAsync(); }
+        }
     }
 }

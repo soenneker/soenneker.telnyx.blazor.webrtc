@@ -10,6 +10,9 @@ namespace Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 /// Provides a comprehensive Blazor WebAssembly interop interface for controlling Telnyx's WebRTC JavaScript SDK.
 /// This interface exposes functionality for managing calls, media devices, screen sharing, bandwidth, and advanced participant control.
 /// </summary>
+/// <remarks>Invalid commands throw JSException with TELNYX_INVALID_STATE or TELNYX_DISPOSED codes.
+/// Query methods may return null when no call or stream exists. Cancellation stops waiting and does not undo
+/// JavaScript work already dispatched. The SDK source (CDN or local) is fixed by the first successful initialization.</remarks>
 public partial interface ITelnyxWebRtcInterop : IAsyncDisposable
 {
     /// <summary>
@@ -27,10 +30,19 @@ public partial interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// <param name="cancellationToken"></param>
     ValueTask Create(string Id, DotNetObjectReference<TelnyxWebRtc> dotNetObjectRef, TelnyxClientOptions options, CancellationToken cancellationToken = default);
 
+    /// <summary>Creates a client owned by a headless session.</summary>
+    ValueTask Create(string id, DotNetObjectReference<TelnyxWebRtcSession> callback, TelnyxClientOptions options, CancellationToken cancellationToken = default);
+
+    /// <summary>Retries playback of the remote media element after a user gesture.</summary>
+    ValueTask<bool> ResumePlayback(string id, CancellationToken cancellationToken = default);
+
     /// <summary>
-    /// Creates a passive observer that monitors call and media events without participating.
+    /// Disposes the client when its owning DOM element leaves the document.
     /// </summary>
     ValueTask CreateObserver(string Id, CancellationToken cancellationToken = default);
+
+    /// <summary>Disposes the session if the specified owning component element leaves the document.</summary>
+    ValueTask CreateObserver(string id, string elementId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Starts an outbound call with the provided call options.
