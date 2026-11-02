@@ -6,6 +6,9 @@
         <IsAotCompatible>true</IsAotCompatible>
         <Platforms>AnyCPU</Platforms>
         <NoWarn>$(NoWarn);1591</NoWarn>
+        <WebMinifierFolders>wwwroot/js</WebMinifierFolders>
+        <WebMinifierJsEnabled>true</WebMinifierJsEnabled>
+        <WebMinifierCssEnabled>false</WebMinifierCssEnabled>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -48,7 +51,9 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.134" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.474" />
+        <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.2" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1800" />
+        <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.43" PrivateAssets="all" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.133" />
     </ItemGroup>
     <ItemGroup>

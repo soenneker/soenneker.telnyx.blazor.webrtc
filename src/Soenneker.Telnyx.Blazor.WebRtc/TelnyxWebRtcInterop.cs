@@ -7,24 +7,21 @@ using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Telnyx.Blazor.WebRtc.Abstract;
 using Soenneker.Telnyx.Blazor.WebRtc.Configuration;
 using Soenneker.Utils.CancellationScopes;
-using Soenneker.Utils.Json;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 
 namespace Soenneker.Telnyx.Blazor.WebRtc;
 
 ///<inheritdoc cref="ITelnyxWebRtcInterop"/>
 public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
 {
-
-
     private readonly IModuleImportUtil _moduleImportUtil;
     private readonly IResourceLoader _resourceLoader;
     private readonly AsyncInitializer<bool> _scriptInitializer;
     private readonly CancellationScope _cancellationScope = new();
 
-    private const string _modulePath = "./_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.js";
+    private const string _modulePath = "./_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtcinterop.min.js";
     private const string _localScriptPath = "_content/Soenneker.Telnyx.Blazor.WebRtc/js/telnyxwebrtc.js";
     private const string _cdnScriptPath = "https://cdn.jsdelivr.net/npm/@telnyx/webrtc@2.27.5/lib/bundle.js";
     private const string _cdnScriptIntegrity = "sha256-1qrBMIDKOEJUeN3SCEKVW9AhCoipPehcygwsCeK54Qk=";
@@ -61,20 +58,22 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     private async ValueTask InvokeVoidAsync(string identifier, CancellationToken cancellationToken = default, params object?[] args)
     {
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+       
         using (source)
         {
             IJSObjectReference module = await GetModule(linked);
-            await module.InvokeVoidAsync(identifier, linked, args);
+            await module.InvokeVoidWithContextAsync(identifier, linked, args);
         }
     }
 
     private async ValueTask<T> InvokeAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties)] T>(string identifier, CancellationToken cancellationToken = default, params object?[] args)
     {
         CancellationToken linked = _cancellationScope.CancellationToken.Link(cancellationToken, out CancellationTokenSource? source);
+        
         using (source)
         {
             IJSObjectReference module = await GetModule(linked);
-            return await module.InvokeAsync<T>(identifier, linked, args);
+            return await module.InvokeWithContextAsync<T>(identifier, linked, args);
         }
     }
 
