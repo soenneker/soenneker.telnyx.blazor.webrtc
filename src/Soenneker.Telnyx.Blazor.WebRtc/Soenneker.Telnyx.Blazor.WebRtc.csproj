@@ -51,7 +51,7 @@
     <ItemGroup>
         <PackageReference Include="Soenneker.Asyncs.Semaphores" Version="11.0.36" />
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.135" />
-        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.474" />
+        <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.475" />
         <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.2" />
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1821" />
         <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.55" PrivateAssets="all" />
