@@ -49,7 +49,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Asyncs.Semaphores" Version="11.0.36" />
+        <PackageReference Include="Soenneker.Asyncs.Semaphores" Version="11.0.37" />
         <PackageReference Include="Soenneker.Asyncs.Initializers" Version="11.0.137" />
         <PackageReference Include="Soenneker.Blazor.Extensions.EventCallback" Version="11.0.476" />
         <PackageReference Include="Soenneker.Blazor.Extensions.IJSObjectReferences" Version="11.0.4" />
