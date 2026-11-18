@@ -56,6 +56,6 @@
         <PackageReference Include="Soenneker.Blazor.Utils.ResourceLoader" Version="11.0.1851" />
         <PackageReference Include="Soenneker.Gen.Web.Minifier" Version="11.0.80" PrivateAssets="all" />
         <PackageReference Include="Soenneker.Lepton.Suite" Version="11.0.148" />
-        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2793" />
+        <PackageReference Include="Soenneker.Utils.Json" Version="11.0.2794" />
     </ItemGroup>
 </Project>
