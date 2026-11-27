@@ -32,6 +32,7 @@ public partial class TelnyxWebRtc
     private bool _cleanupComplete;
     private bool _initialized;
     private double? _appliedVolume;
+    private double _appliedMicrophoneVolume = 1;
     private TelnyxMediaMode? _initializedMode;
     private TelnyxMediaMode EffectiveMediaMode => MediaMode ?? (RenderVideo ? TelnyxMediaMode.Video : RenderHiddenAudio ? TelnyxMediaMode.Audio : TelnyxMediaMode.External);
     private ITelnyxWebRtcSession Session => !_disposed && _session != null ? _session : throw new InvalidOperationException("WebRTC session is unavailable.");
@@ -43,6 +44,8 @@ public partial class TelnyxWebRtc
     {
         if (!double.IsFinite(SpeakerVolume) || SpeakerVolume < 0 || SpeakerVolume > 1)
             throw new ArgumentOutOfRangeException(nameof(SpeakerVolume), "Volume must be between zero and one.");
+        if (!double.IsFinite(MicrophoneVolume) || MicrophoneVolume < 0 || MicrophoneVolume > 1)
+            throw new ArgumentOutOfRangeException(nameof(MicrophoneVolume), "Volume must be between zero and one.");
         if (_initializedMode != null && _initializedMode != EffectiveMediaMode)
             throw new InvalidOperationException("MediaMode cannot change after initialization. Recreate the component to change rendering modes.");
     }
@@ -51,6 +54,14 @@ public partial class TelnyxWebRtc
     {
         // No JavaScript interop during prerendering.
         if (firstRender) await Initialize(Options, CancellationToken);
+        using var lease = await _lifecycle.Acquire(CancellationToken);
+        if (_disposed) return;
+        var microphoneVolume = MicrophoneVolume;
+        if (_appliedMicrophoneVolume != microphoneVolume)
+        {
+            await Session.SetMicrophoneVolume(microphoneVolume, CancellationToken);
+            _appliedMicrophoneVolume = microphoneVolume;
+        }
         if (EffectiveMediaMode != TelnyxMediaMode.External && _appliedVolume != SpeakerVolume)
         {
             await Interop.SetAudioVolume(_remoteElementId, SpeakerVolume, CancellationToken);

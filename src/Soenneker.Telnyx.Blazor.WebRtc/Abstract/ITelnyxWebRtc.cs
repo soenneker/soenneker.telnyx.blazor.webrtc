@@ -19,6 +19,8 @@ public partial interface ITelnyxWebRtc : ILeptonCancellableIdentifiableContentEl
     TelnyxClientOptions? Options { get; set; }
     /// <summary>Playback volume in the inclusive range zero to one.</summary>
     double SpeakerVolume { get; set; }
+    /// <summary>Outgoing microphone gain from zero (silent) to one (original level, the default), applied to current and subsequent calls.</summary>
+    double MicrophoneVolume { get; set; }
     /// <summary>Explicit rendering mode. When absent, RenderVideo takes precedence over RenderHiddenAudio. Fixed after initialization.</summary>
     TelnyxMediaMode? MediaMode { get; set; }
     /// <summary>Current connection state, distinguishing transport connection from registration.</summary>

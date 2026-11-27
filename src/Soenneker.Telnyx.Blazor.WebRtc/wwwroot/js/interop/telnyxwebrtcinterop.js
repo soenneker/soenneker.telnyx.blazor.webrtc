@@ -41,6 +41,8 @@ export async function create(elementId, optionsJson, dotNetCallback) {
         lifecycle: Promise.resolve(),
         callStates: new Map(),
         mediaCleanup: [],
+        microphoneVolume: 1,
+        microphoneUpdates: Promise.resolve(),
         state: 'initializing',
         startedAt: Date.now(),
         reconnects: 0
@@ -196,7 +198,69 @@ function bindPlayback(wrapper) {
     wrapper.playbackCleanup = () => element?.removeEventListener?.('loadedmetadata', playbackHandler);
 }
 
+// Both dialed and answered calls expose the negotiated microphone through the audio sender.
+function syncMicrophone(wrapper) {
+    const update = wrapper.microphoneUpdates.then(() => applyMicrophoneVolume(wrapper));
+    wrapper.microphoneUpdates = update.catch(() => {});
+    return update;
+}
+
+function releaseMicrophone(graph) {
+    graph.output?.stop();
+    if (graph.context.state !== 'closed') return graph.context.close();
+}
+
+async function applyMicrophoneVolume(wrapper) {
+    const sender = wrapper.currentCall?.peer?.instance?.getSenders().find(sender => sender.track?.kind === 'audio');
+    const graph = wrapper.microphoneGraph;
+    if (graph) {
+        if (graph.sender === sender && sender.track === graph.output) {
+            if (wrapper.microphoneVolume !== 1) {
+                graph.gain.gain.value = wrapper.microphoneVolume;
+                return;
+            }
+            await sender.replaceTrack(graph.input);
+        }
+
+        wrapper.microphoneGraph = null;
+        await releaseMicrophone(graph);
+    }
+
+    if (!sender || wrapper.microphoneVolume === 1) return;
+    const context = new AudioContext();
+    const next = { context, sender, input: sender.track };
+    try {
+        // Keep the original track under SDK ownership so mute and device selection keep working.
+        const source = context.createMediaStreamSource(new MediaStream([next.input]));
+        next.gain = context.createGain();
+        next.gain.gain.value = wrapper.microphoneVolume;
+        const destination = context.createMediaStreamDestination();
+        next.output = destination.stream.getAudioTracks()[0];
+        source.connect(next.gain).connect(destination);
+        await sender.replaceTrack(next.output);
+        wrapper.microphoneGraph = next;
+    } catch (error) {
+        await releaseMicrophone(next);
+        throw error;
+    }
+    if (context.state === 'suspended') {
+        void context.resume().catch(error => {
+            if (wrapper.microphoneGraph === next) invokeDotNet(wrapper, 'rtc.mediaError', normalizeError(error));
+        });
+    }
+}
+
+export function setMicrophoneVolume(elementId, volume) {
+    if (!Number.isFinite(volume) || volume < 0 || volume > 1) throw new RangeError('Volume must be between zero and one.');
+    const wrapper = requireWrapper(elementId);
+    wrapper.microphoneVolume = volume;
+    return syncMicrophone(wrapper);
+}
+
 function syncMedia(wrapper) {
+    if (wrapper.microphoneVolume !== 1 || wrapper.microphoneGraph) {
+        void syncMicrophone(wrapper).catch(error => invokeDotNet(wrapper, 'rtc.mediaError', normalizeError(error)));
+    }
     const call = wrapper.currentCall;
     const streams = [call?.localStream, call?.remoteStream];
     if (streams[0] === wrapper.localStream && streams[1] === wrapper.remoteStream) return;
@@ -657,6 +721,7 @@ async function disconnectClient(wrapper) {
     wrapper.eventQueue = Promise.resolve();
     wrapper.currentCall = null;
     syncMedia(wrapper);
+    await syncMicrophone(wrapper);
     unbindEvents(wrapper);
     const client = wrapper.client;
     wrapper.client = null;

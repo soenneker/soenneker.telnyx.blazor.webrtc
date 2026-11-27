@@ -247,6 +247,9 @@ public sealed partial class TelnyxWebRtcInterop : ITelnyxWebRtcInterop
     public ValueTask SetAudioVolume(string id, double volume, CancellationToken cancellationToken = default)
         => InvokeVoidAsync("setAudioVolume", cancellationToken, id, volume);
 
+    public ValueTask SetMicrophoneVolume(string id, double volume, CancellationToken cancellationToken = default)
+        => InvokeVoidAsync("setMicrophoneVolume", cancellationToken, id, volume);
+
     public ValueTask Connect(string id, CancellationToken cancellationToken = default)
         => InvokeVoidAsync("connect", cancellationToken, id);
 

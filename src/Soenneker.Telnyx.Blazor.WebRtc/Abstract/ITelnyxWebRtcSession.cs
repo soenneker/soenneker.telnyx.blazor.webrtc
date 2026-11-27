@@ -137,6 +137,9 @@ public interface ITelnyxWebRtcSession : IAsyncDisposable
     /// </summary>
     ValueTask SetAudioInDevice(string deviceId, CancellationToken cancellationToken = default);
 
+    /// <summary>Sets outgoing microphone gain for current and subsequent calls, from zero (silent) to one (original level).</summary>
+    ValueTask SetMicrophoneVolume(double volume, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Sets the output audio device (speakers/headphones) by device ID.
     /// </summary>

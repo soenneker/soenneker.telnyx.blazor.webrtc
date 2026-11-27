@@ -8,7 +8,7 @@ test('a second incoming call cannot steal hangup or UI ownership', async () => {
         on(name, handler) { handlers.set(name, handler); }
         async connect() {}
     } };
-    const source = await readFile(new URL('../src/Soenneker.Telnyx.Blazor.WebRtc/wwwroot/js/telnyxwebrtcinterop.js', import.meta.url), 'utf8');
+    const source = await readFile(new URL('../src/Soenneker.Telnyx.Blazor.WebRtc/wwwroot/js/interop/telnyxwebrtcinterop.js', import.meta.url), 'utf8');
     const interop = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
     const ended = [];
     const notifications = [];
@@ -18,8 +18,10 @@ test('a second incoming call cannot steal hangup or UI ownership', async () => {
     const first = { id:'first', state:'active', hangup:()=>ended.push('first') };
     const second = { id:'second', state:'ringing', hangup:()=>ended.push('second') };
     await handlers.get('telnyx.notification')({type:'callUpdate',call:first});
+    await new Promise(resolve => setImmediate(resolve));
     const before = notifications.length;
     await handlers.get('telnyx.notification')({type:'callUpdate',call:second});
+    await new Promise(resolve => setImmediate(resolve));
     assert.equal(notifications.length, before);
     assert.deepEqual(ended, ['second']);
     await interop.hangup('phone-test');

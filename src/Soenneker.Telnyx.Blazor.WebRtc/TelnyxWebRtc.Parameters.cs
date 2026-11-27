@@ -70,6 +70,9 @@ public partial class TelnyxWebRtc
     public double SpeakerVolume { get; set; } = 1.0;
 
     [Parameter]
+    public double MicrophoneVolume { get; set; } = 1.0;
+
+    [Parameter]
     public EventCallback<double> SpeakerVolumeChanged { get; set; }
 
     [Parameter]

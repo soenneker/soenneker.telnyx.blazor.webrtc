@@ -256,6 +256,9 @@ public partial interface ITelnyxWebRtcInterop : IAsyncDisposable
     /// </summary>
     ValueTask SetAudioVolume(string  Id, double volume, CancellationToken cancellationToken = default);
 
+    /// <summary>Sets the session's outgoing microphone gain from zero to one.</summary>
+    ValueTask SetMicrophoneVolume(string id, double volume, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Explicitly connects the Telnyx WebRTC client for the given element.
     /// </summary>

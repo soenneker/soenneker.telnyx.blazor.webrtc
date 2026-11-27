@@ -31,6 +31,14 @@ public sealed partial class TelnyxWebRtcSession
             return await action(state, Id!, linked);
     }
 
+    public ValueTask SetMicrophoneVolume(double volume, CancellationToken cancellationToken = default)
+    {
+        if (!double.IsFinite(volume) || volume < 0 || volume > 1)
+            throw new ArgumentOutOfRangeException(nameof(volume));
+
+        return SdkExecute((Interop: TelnyxWebRtcInterop, volume), static (state, id, ct) => state.Interop.SetMicrophoneVolume(id, state.volume, ct), cancellationToken);
+    }
+
     private void EnsureSdkInitialized()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
